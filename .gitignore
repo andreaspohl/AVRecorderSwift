@@ -34,8 +34,6 @@ makeFile
 
 
 # and more stuff
-HorseCam
-makefile
 *.png
 *.mov
 *.build/
