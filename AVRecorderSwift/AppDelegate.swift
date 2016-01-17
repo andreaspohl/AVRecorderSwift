@@ -18,6 +18,10 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     var movieFileOutput: AVCaptureMovieFileOutput?
     var session: AVCaptureSession?
     
+    var recordingUrl: NSURL? //here we keep the actual file URL where we are recording
+    
+    var fileManager = NSFileManager()
+    
     override init() {
         
         super.init()
@@ -58,55 +62,91 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
         
         //set max movie duration
-        let seconds : Int64 = 13
+        let seconds : Int64 = 3
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
+        
+        //start the session
+        session!.startRunning()
+    }
+    
+    //MARK: Utility
+    func renameFileDone (fromURL: NSURL?) {
+        
+        //renames the file fromURL by adding 'done' to the file name
+        
+        if fromURL == nil {
+            return
+        }
+        
+        let path = fromURL!.URLByDeletingLastPathComponent
+        let fileNameWithExtension : NSString = fromURL!.lastPathComponent!
+        let fileName = fileNameWithExtension.stringByDeletingPathExtension
+        let fileExtension = fileNameWithExtension.pathExtension
+        
+        let donePathAndFileNameWithExtension = path?.URLByAppendingPathComponent("\(fileName) done.\(fileExtension)")
+                
+        let toURL = donePathAndFileNameWithExtension
+        
+        if recordingUrl != nil {
+            do {
+                try fileManager.moveItemAtURL(fromURL!, toURL: toURL!)
+            } catch let moveError as NSError {
+                print(moveError.localizedDescription)
+            }
+        }
+    
     }
     
     //MARK: Control recording
     func startRecording() {
         
-        var filename : NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first!
+        //get path to movies directory
+        let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.MoviesDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first!
         
-        filename = filename.stringByAppendingPathComponent("workspace/AVRecorderSwift/in/in.mov")
-        print("\(filename)")
+        let path : NSString = moviesPath.stringByAppendingPathComponent("1_in/")
         
-        if (NSFileManager.defaultManager().fileExistsAtPath(filename as String)) {
-            print("File exists! Deleting...")
-            do {
-                try NSFileManager.defaultManager().removeItemAtPath(filename as String)
-            } catch {
-                print("ERROR: can't remove file \(filename as String)")
-                fatalError()
-            }
-        }
+        //calculate timestamp
+        let now = NSDate()
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd' 'HH':'mm':'ss"
+        formatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        let timestamp = formatter.stringFromDate(now)
         
-        let path : NSURL? = NSURL(fileURLWithPath: filename as String)
         
-        session!.startRunning()
-
+        // make filename
+        let fileName = "\(timestamp) CAM0"
+        let filePathNameExtension = path.stringByAppendingPathComponent("\(fileName).mov")
+        print("debug: \(filePathNameExtension)")
+        
+        
+        let newUrl : NSURL? = NSURL(fileURLWithPath: filePathNameExtension as String)
+        
         print("start recording")
-        movieFileOutput!.startRecordingToOutputFileURL(path!, recordingDelegate: self)
+        movieFileOutput!.startRecordingToOutputFileURL(newUrl!, recordingDelegate: self)
+        
+        //now rename the old file
+        renameFileDone(recordingUrl)
+        
+        //remember the new file name and url
+        recordingUrl = newUrl!
+
     }
     
     func stopRecording() {
-        session!.stopRunning()
         print("stop recording")
-        dispatch_async(dispatch_get_main_queue()) {
-            exit(1)
-        }
-        exit(0)
+        renameFileDone(recordingUrl)
+        movieFileOutput!.stopRecording()
+        
+        session!.stopRunning()
     }
     
     //MARK: Delegate methods
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
         print("finished recording")
-        self.stopRecording()
-        dispatch_async(dispatch_get_main_queue()) {
-            exit(2)
-        }
+        stopRecording()
     }
 }
 
