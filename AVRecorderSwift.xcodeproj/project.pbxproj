@@ -11,6 +11,23 @@
 		E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12751851C4AA29D004BE799 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E14FE7F11C666C3F007AEA33 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E14FE7EC1C666C3E007AEA33 /* ORSSerialPort.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9DCA89121A2BB106009285EB;
+			remoteInfo = ORSSerial;
+		};
+		E14FE7F31C666C3F007AEA33 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E14FE7EC1C666C3E007AEA33 /* ORSSerialPort.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9D7472131B6D7767002D8B10;
+			remoteInfo = "ORSSerialPort Tests";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		E12751791C4A422F004BE799 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -27,6 +44,7 @@
 		E127517B1C4A422F004BE799 /* AVRecorderSwift */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AVRecorderSwift; sourceTree = BUILT_PRODUCTS_DIR; };
 		E127517E1C4A422F004BE799 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E12751851C4AA29D004BE799 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E14FE7EC1C666C3E007AEA33 /* ORSSerialPort.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ORSSerialPort.xcodeproj; path = "Frameworks/ORSSerialPort/Framework Project/ORSSerialPort.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +61,7 @@
 		E12751721C4A422F004BE799 = {
 			isa = PBXGroup;
 			children = (
+				E14FE7EC1C666C3E007AEA33 /* ORSSerialPort.xcodeproj */,
 				E127517D1C4A422F004BE799 /* AVRecorderSwift */,
 				E127517C1C4A422F004BE799 /* Products */,
 			);
@@ -63,6 +82,15 @@
 				E12751851C4AA29D004BE799 /* AppDelegate.swift */,
 			);
 			path = AVRecorderSwift;
+			sourceTree = "<group>";
+		};
+		E14FE7ED1C666C3E007AEA33 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E14FE7F21C666C3F007AEA33 /* ORSSerial.framework */,
+				E14FE7F41C666C3F007AEA33 /* ORSSerialPort Tests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -106,16 +134,40 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = E12751721C4A422F004BE799;
 			productRefGroup = E127517C1C4A422F004BE799 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E14FE7ED1C666C3E007AEA33 /* Products */;
+					ProjectRef = E14FE7EC1C666C3E007AEA33 /* ORSSerialPort.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E127517A1C4A422F004BE799 /* AVRecorderSwift */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		E14FE7F21C666C3F007AEA33 /* ORSSerial.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ORSSerial.framework;
+			remoteRef = E14FE7F11C666C3F007AEA33 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E14FE7F41C666C3F007AEA33 /* ORSSerialPort Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "ORSSerialPort Tests.xctest";
+			remoteRef = E14FE7F31C666C3F007AEA33 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E12751771C4A422F004BE799 /* Sources */ = {
@@ -152,6 +204,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -196,6 +249,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -213,6 +267,8 @@
 		E12751831C4A422F004BE799 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework Project/build/Debug";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -220,6 +276,8 @@
 		E12751841C4A422F004BE799 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework Project/build/Debug";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -243,6 +301,7 @@
 				E12751841C4A422F004BE799 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
