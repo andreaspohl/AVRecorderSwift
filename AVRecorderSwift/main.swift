@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ORSSerial
 
 let appDelegate = AVRecorderDelegate()
 
