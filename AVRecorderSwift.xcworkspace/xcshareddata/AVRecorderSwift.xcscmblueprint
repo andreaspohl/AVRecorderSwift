@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "95E37502BA0BD4358B0C4BC280AF041E91CE9517",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "5A811E91F5DFF59170683E14D2C5755F19DE18CB" : 0,
+    "95E37502BA0BD4358B0C4BC280AF041E91CE9517" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "BBB77449-DFA5-4155-BC78-F788E2A1B282",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "5A811E91F5DFF59170683E14D2C5755F19DE18CB" : "AVRecorderSwift\/Frameworks\/ORSSerialPort\/",
+    "95E37502BA0BD4358B0C4BC280AF041E91CE9517" : "AVRecorderSwift\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "AVRecorderSwift",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "AVRecorderSwift.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/armadsen\/ORSSerialPort.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "5A811E91F5DFF59170683E14D2C5755F19DE18CB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/andreaspohl\/AVRecorderSwift.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "95E37502BA0BD4358B0C4BC280AF041E91CE9517"
+    }
+  ]
+}

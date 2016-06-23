@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		E127517F1C4A422F004BE799 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E127517E1C4A422F004BE799 /* main.swift */; };
 		E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12751851C4AA29D004BE799 /* AppDelegate.swift */; };
+		E17DAD911D1C68B100FBACB7 /* ORSSerial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */; };
 		E193D5B71C6B8B9F00EB4BE5 /* ORSSerialBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5AE1C6B8B9F00EB4BE5 /* ORSSerialBuffer.m */; };
 		E193D5B81C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B01C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m */; };
 		E193D5B91C6B8B9F00EB4BE5 /* ORSSerialPort.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B21C6B8B9F00EB4BE5 /* ORSSerialPort.m */; };
 		E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B41C6B8B9F00EB4BE5 /* ORSSerialPortManager.m */; };
 		E193D5BB1C6B8B9F00EB4BE5 /* ORSSerialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */; };
+		E30CE1212898C6726BAF65E7 /* Pods_AVRecorderSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,9 +31,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1147ADD43F63D9172CFEC33D /* Pods-AVRecorderSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVRecorderSwift.release.xcconfig"; path = "Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift.release.xcconfig"; sourceTree = "<group>"; };
+		60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AVRecorderSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DF4C91D707E5D2617B48514 /* Pods-AVRecorderSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVRecorderSwift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift.debug.xcconfig"; sourceTree = "<group>"; };
 		E127517B1C4A422F004BE799 /* AVRecorderSwift */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AVRecorderSwift; sourceTree = BUILT_PRODUCTS_DIR; };
 		E127517E1C4A422F004BE799 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E12751851C4AA29D004BE799 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ORSSerial.framework; path = Pods/../build/Debug/ORSSerialPort/ORSSerial.framework; sourceTree = "<group>"; };
 		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		E193D5AD1C6B8B9F00EB4BE5 /* ORSSerialBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialBuffer.h; path = Frameworks/ORSSerialPort/Source/ORSSerialBuffer.h; sourceTree = "<group>"; };
 		E193D5AE1C6B8B9F00EB4BE5 /* ORSSerialBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialBuffer.m; path = Frameworks/ORSSerialPort/Source/ORSSerialBuffer.m; sourceTree = "<group>"; };
@@ -50,17 +56,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E17DAD911D1C68B100FBACB7 /* ORSSerial.framework in Frameworks */,
+				E30CE1212898C6726BAF65E7 /* Pods_AVRecorderSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E47908515E455662CDBF335 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */,
+				60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E12751721C4A422F004BE799 = {
 			isa = PBXGroup;
 			children = (
 				E127517D1C4A422F004BE799 /* AVRecorderSwift */,
 				E127517C1C4A422F004BE799 /* Products */,
+				F7992BA3C281587C4A93583D /* Pods */,
+				6E47908515E455662CDBF335 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,6 +120,15 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
+		F7992BA3C281587C4A93583D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7DF4C91D707E5D2617B48514 /* Pods-AVRecorderSwift.debug.xcconfig */,
+				1147ADD43F63D9172CFEC33D /* Pods-AVRecorderSwift.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -108,9 +136,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E12751821C4A422F004BE799 /* Build configuration list for PBXNativeTarget "AVRecorderSwift" */;
 			buildPhases = (
+				1BFBBFDF12AF80E8DC4100A1 /* [CP] Check Pods Manifest.lock */,
 				E12751771C4A422F004BE799 /* Sources */,
 				E12751781C4A422F004BE799 /* Frameworks */,
 				E12751791C4A422F004BE799 /* CopyFiles */,
+				4CD1F8BD012B70F1169613B3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -153,6 +183,39 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1BFBBFDF12AF80E8DC4100A1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		4CD1F8BD012B70F1169613B3 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E12751771C4A422F004BE799 /* Sources */ = {
@@ -256,17 +319,17 @@
 		};
 		E12751831C4A422F004BE799 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7DF4C91D707E5D2617B48514 /* Pods-AVRecorderSwift.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework",
-					Project/build/Debug,
-					"$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework",
-					Project/build/Debug,
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug/ORSSerialPort",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AVRecorderSwift-Bridging-Header.h";
@@ -276,17 +339,17 @@
 		};
 		E12751841C4A422F004BE799 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1147ADD43F63D9172CFEC33D /* Pods-AVRecorderSwift.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework",
-					Project/build/Debug,
-					"$(PROJECT_DIR)/Frameworks/ORSSerialPort/Framework",
-					Project/build/Debug,
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug/ORSSerialPort",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AVRecorderSwift-Bridging-Header.h";
