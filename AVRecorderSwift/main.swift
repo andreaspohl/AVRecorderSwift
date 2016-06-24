@@ -5,23 +5,7 @@
 //  Created by Andreas Pohl on 16.01.16.
 //  Copyright © 2016 Andreas Pohl. All rights reserved.
 //
-
-import Foundation
-import ORSSerial
-
-let appDelegate = AVRecorderDelegate()
-
-
-for _ in 1...4 {
-    appDelegate.startRecording()
-    sleep(10)
-}
-appDelegate.stopRecording()
-
-
-//
-//  main.swift
-//  SerialSwift
+// heavily based on:
 //
 //  CommandLineDemo
 //
@@ -47,8 +31,21 @@ appDelegate.stopRecording()
 //	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-//import Foundation
-//import ORSSerialPort
+import Foundation
+import ORSSerial
+
+let usbButtonDeviceId = "usbmodem1171481"
+let usbButtonDeviceBaudRate = "9600"
+
+let appDelegate = AVRecorderDelegate()
+
+/*
+for _ in 1...4 {
+    appDelegate.startRecording()
+    sleep(10)
+}
+appDelegate.stopRecording()
+*/
 
 enum ApplicationState {
     case InitializationState
@@ -117,8 +114,17 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         //currentState = .WaitingForPortSelectionState(availablePorts)
         
         // TODO: make sure port 0 is usbmodem1171481 (or at least starting with 'usb'
-        setupAndOpenPortWithSelectionString("0", availablePorts: availablePorts)
-        setBaudRateOnPortWithString("9600")
+        var portNumber = 0
+        for port in availablePorts {
+            print("\(port.name)")
+            if port.name.containsString(usbButtonDeviceId) {
+                break //device found
+            }
+            portNumber++
+        }
+
+        setupAndOpenPortWithSelectionString(String(portNumber), availablePorts: availablePorts)
+        setBaudRateOnPortWithString(usbButtonDeviceBaudRate)
         
         currentState = .WaitingForUserInputState
         
@@ -191,14 +197,18 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
             
             if string.containsString("start") {
                 print("Aufnahme starten!\n")
-                appDelegate.startRecording()
-
+                //dispatch_async(dispatch_get_main_queue()) {
+                    appDelegate.startRecording()
+                //}
 
             }
             
             if string.containsString("stop") {
                 print("Aufnahme stoppen!\n")
-                appDelegate.stopRecording()
+                //dispatch_async(dispatch_get_main_queue()) {
+                    appDelegate.stopRecording()
+            
+                //}
             }
             
             
@@ -222,6 +232,10 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     }
 }
 
-//StateMachine().runProcessingInput()
+
+// put serial handling in a low prio queue
+//dispatch_sync(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+    StateMachine().runProcessingInput()
+//}
 
 
