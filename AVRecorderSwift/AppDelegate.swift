@@ -64,9 +64,6 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
-        
-        //start the session
-        session!.startRunning()
     }
     
     //MARK: Utility
@@ -99,6 +96,12 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //MARK: Control recording
     func startRecording() {
+        
+        //start the session if not already running
+        if  !session!.running {
+            session!.startRunning()
+        }
+
         
         //get path to movies directory
         let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.MoviesDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first!
@@ -138,7 +141,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         renameFileDone(recordingUrl)
         recordingUrl = nil
         
-        //session!.stopRunning()
+        session!.stopRunning()
     }
     
     //MARK: Delegate methods
