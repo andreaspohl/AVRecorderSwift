@@ -116,7 +116,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         // make filename
         let fileName = "\(timestamp) CAM0"
         let filePathNameExtension = path.stringByAppendingPathComponent("\(fileName).mov")
-        print("debug: \(filePathNameExtension)")
+        print("preparing recording of file: \(filePathNameExtension)")
         
         
         let newUrl : NSURL? = NSURL(fileURLWithPath: filePathNameExtension as String)
@@ -134,17 +134,17 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     func stopRecording() {
         print("stop recording")
-        renameFileDone(recordingUrl)
         movieFileOutput!.stopRecording()
+        renameFileDone(recordingUrl)
+        recordingUrl = nil
         
-        session!.stopRunning()
+        //session!.stopRunning()
     }
     
     //MARK: Delegate methods
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
-        print("finished recording", error)
-        stopRecording()
+        print("frame dropped")
     }
 }
 

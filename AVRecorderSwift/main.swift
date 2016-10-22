@@ -113,7 +113,6 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         prompter.promptForSerialPort()
         //currentState = .WaitingForPortSelectionState(availablePorts)
         
-        // TODO: make sure port 0 is usbmodem1171481 (or at least starting with 'usb'
         var portNumber = 0
         for port in availablePorts {
             print("\(port.name)")
@@ -188,11 +187,10 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         }
     }
     
-    // ORSSerialPortDelegate
+    // MARK: ORSSerialPortDelegate
     
     func serialPort(serialPort: ORSSerialPort, didReceiveData data: NSData) {
         if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
-            //print("\nReceived: \"\(string)\" \(data)", terminator: "")
             print("\nReceived: \"\(string)\"", terminator: "")
             
             if string.containsString("start") {
