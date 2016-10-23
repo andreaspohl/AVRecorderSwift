@@ -60,7 +60,8 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
         
         //set max movie duration
-        let seconds : Int64 = 700
+//        let seconds : Int64 = 700
+        let seconds : Int64 = 5
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
@@ -123,7 +124,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         
         let newUrl : NSURL? = NSURL(fileURLWithPath: filePathNameExtension as String)
-        
+
         print("start recording")
         movieFileOutput!.startRecordingToOutputFileURL(newUrl!, recordingDelegate: self)
         
@@ -147,7 +148,18 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     //MARK: Delegate methods
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
-        print("frame dropped")
+        if error == nil {
+            print("finished writing without error")
+        } else {
+            //print(error!.code)
+            //print(error!.userInfo)
+            if error!.code == -11810 {
+                print("max file length reached, restarting recording")
+                startRecording()
+            } else {
+                NSLog("captureOuput called with", error!.userInfo)
+            }
+        }
     }
 }
 
