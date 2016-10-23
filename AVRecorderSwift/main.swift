@@ -48,10 +48,10 @@ appDelegate.stopRecording()
 */
 
 enum ApplicationState {
-    case InitializationState
-    case WaitingForPortSelectionState([ORSSerialPort])
-    case WaitingForBaudRateInputState
-    case WaitingForUserInputState
+    case initializationState
+    case waitingForPortSelectionState([ORSSerialPort])
+    case waitingForBaudRateInputState
+    case waitingForUserInputState
 }
 
 // MARK: User prompts
@@ -69,10 +69,11 @@ struct UserPrompter {
     
     func promptForSerialPort() {
         print("Serial Ports:")
-        let availablePorts = ORSSerialPortManager.sharedSerialPortManager().availablePorts
+        let availablePorts = ORSSerialPortManager.shared().availablePorts
         var i = 0
         for port in availablePorts {
-            print("\(i++). \(port.name)")
+            i = i + 1
+            print("\(i). \(port.name)")
         }
     }
     
@@ -82,8 +83,8 @@ struct UserPrompter {
 }
 
 class StateMachine : NSObject, ORSSerialPortDelegate {
-    var currentState = ApplicationState.InitializationState
-    let standardInputFileHandle = NSFileHandle.fileHandleWithStandardInput()
+    var currentState = ApplicationState.initializationState
+    let standardInputFileHandle = FileHandle.standardInput
     let prompter = UserPrompter()
     
     var serialPort: ORSSerialPort? {
@@ -105,7 +106,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         
         prompter.printIntroduction()
         
-        let availablePorts = ORSSerialPortManager.sharedSerialPortManager().availablePorts
+        let availablePorts = ORSSerialPortManager.shared().availablePorts
         if availablePorts.count == 0 {
             print("No connected serial ports found. Please connect your USB to serial adapter(s) and run the program again.")
             exit(EXIT_SUCCESS)
@@ -116,23 +117,24 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         var portNumber = 0
         for port in availablePorts {
             print("\(port.name)")
-            if port.name.containsString(usbButtonDeviceId) {
+            if port.name.contains(usbButtonDeviceId) {
                 break //device found
             }
-            portNumber++
+            portNumber += 1
         }
         
         setupAndOpenPortWithSelectionString(String(portNumber), availablePorts: availablePorts)
         setBaudRateOnPortWithString(usbButtonDeviceBaudRate)
         
-        currentState = .WaitingForUserInputState
+        currentState = .waitingForUserInputState
         
-        NSRunLoop.currentRunLoop().run() // Required to receive data from ORSSerialPort and to process user input
+        RunLoop.current.run() // Required to receive data from ORSSerialPort and to process user input
     }
     
     // MARK: Port Settings
-    func setupAndOpenPortWithSelectionString(var selectionString: String, availablePorts: [ORSSerialPort]) -> Bool {
-        selectionString = selectionString.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+    func setupAndOpenPortWithSelectionString(_ selectionString: String, availablePorts: [ORSSerialPort]) -> Bool {
+        var selectionString = selectionString
+        selectionString = selectionString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if let index = Int(selectionString) {
             let clampedIndex = min(max(index, 0), availablePorts.count-1)
             self.serialPort = availablePorts[clampedIndex]
@@ -142,10 +144,11 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         }
     }
     
-    func setBaudRateOnPortWithString(var selectionString: String) -> Bool {
-        selectionString = selectionString.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+    func setBaudRateOnPortWithString(_ selectionString: String) -> Bool {
+        var selectionString = selectionString
+        selectionString = selectionString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if let baudRate = Int(selectionString) {
-            self.serialPort?.baudRate = baudRate
+            self.serialPort?.baudRate = baudRate as NSNumber
             print("Baud rate set to \(baudRate)")
             return true
         } else {
@@ -154,32 +157,32 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     }
     
     // MARK: Data Processing
-    func handleUserInput(dataFromUser: NSData) {
-        if let string = NSString(data: dataFromUser, encoding: NSUTF8StringEncoding) as? String {
+    func handleUserInput(_ dataFromUser: Data) {
+        if let string = NSString(data: dataFromUser, encoding: String.Encoding.utf8.rawValue) as? String {
             
-            if string.lowercaseString.hasPrefix("exit") ||
-                string.lowercaseString.hasPrefix("quit") {
+            if string.lowercased().hasPrefix("exit") ||
+                string.lowercased().hasPrefix("quit") {
                     print("Quitting...")
                     exit(EXIT_SUCCESS)
             }
             
             switch self.currentState {
-            case .WaitingForPortSelectionState(let availablePorts):
+            case .waitingForPortSelectionState(let availablePorts):
                 if !setupAndOpenPortWithSelectionString(string, availablePorts: availablePorts) {
                     print("\nError: Invalid port selection.", terminator: "")
                     prompter.promptForSerialPort()
                     return
                 }
-            case .WaitingForBaudRateInputState:
+            case .waitingForBaudRateInputState:
                 if !setBaudRateOnPortWithString(string) {
                     print("\nError: Invalid baud rate. Baud rate should consist only of numeric digits.", terminator: "")
                     prompter.promptForBaudRate();
                     return;
                 }
-                currentState = .WaitingForUserInputState
+                currentState = .waitingForUserInputState
                 prompter.printPrompt()
-            case .WaitingForUserInputState:
-                self.serialPort?.sendData(dataFromUser)
+            case .waitingForUserInputState:
+                self.serialPort?.send(dataFromUser)
                 prompter.printPrompt()
             default:
                 break;
@@ -189,41 +192,41 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     
     // MARK: ORSSerialPortDelegate
     
-    func serialPort(serialPort: ORSSerialPort, didReceiveData data: NSData) {
-        if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
+    func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
+        if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
             print("\nReceived: \"\(string)\"", terminator: "")
             
-            if string.containsString("start") {
+            if string.contains("start") {
                 print("Aufnahme starten!\n")
                 appDelegate.startRecording()
                 
             }
             
-            if string.containsString("stop") {
+            if string.contains("stop") {
                 print("Aufnahme stoppen!\n")
                 appDelegate.stopRecording()
             }
         }
     }
     
-    func serialPortWasRemovedFromSystem(serialPort: ORSSerialPort) {
+    func serialPortWasRemoved(fromSystem serialPort: ORSSerialPort) {
         self.serialPort = nil
     }
     
-    func serialPort(serialPort: ORSSerialPort, didEncounterError error: NSError) {
+    func serialPort(_ serialPort: ORSSerialPort, didEncounterError error: Error) {
         print("Serial port (\(serialPort)) encountered error: \(error)")
     }
     
-    func serialPortWasOpened(serialPort: ORSSerialPort) {
+    func serialPortWasOpened(_ serialPort: ORSSerialPort) {
         print("Serial port \(serialPort) was opened", terminator: "")
         //prompter.promptForBaudRate()
         //currentState = .WaitingForBaudRateInputState
-        currentState = .WaitingForUserInputState
+        currentState = .waitingForUserInputState
     }
 }
 
 //run the file handler
-dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
     FileHandler().run()
 }
 

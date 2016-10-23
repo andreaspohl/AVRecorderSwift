@@ -16,9 +16,9 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     var movieFileOutput: AVCaptureMovieFileOutput?
     var session: AVCaptureSession?
     
-    var recordingUrl: NSURL? //here we keep the actual file URL where we are recording
+    var recordingUrl: URL? //here we keep the actual file URL where we are recording
     
-    var fileManager = NSFileManager()
+    var fileManager = FileManager()
     
     //MARK: Initialization
     override init() {
@@ -30,7 +30,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         session!.sessionPreset = AVCaptureSessionPresetHigh
         
         //look for device
-        device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
+        device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         let deviceName = device?.localizedName
         print("DeviceName: \(deviceName)")
         
@@ -69,7 +69,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     }
     
     //MARK: Utility
-    func renameFileDone (fromURL: NSURL?) {
+    func renameFileDone (_ fromURL: URL?) {
         
         //renames the file fromURL by adding 'done' to the file name
         
@@ -77,18 +77,18 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
             return
         }
         
-        let path = fromURL!.URLByDeletingLastPathComponent
-        let fileNameWithExtension : NSString = fromURL!.lastPathComponent!
-        let fileName = fileNameWithExtension.stringByDeletingPathExtension
+        let path = fromURL!.deletingLastPathComponent()
+        let fileNameWithExtension : NSString = fromURL!.lastPathComponent as NSString
+        let fileName = fileNameWithExtension.deletingPathExtension
         let fileExtension = fileNameWithExtension.pathExtension
         
-        let donePathAndFileNameWithExtension = path?.URLByAppendingPathComponent("\(fileName) done.\(fileExtension)")
+        let donePathAndFileNameWithExtension = path.appendingPathComponent("\(fileName) done.\(fileExtension)")
                 
         let toURL = donePathAndFileNameWithExtension
         
         if recordingUrl != nil {
             do {
-                try fileManager.moveItemAtURL(fromURL!, toURL: toURL!)
+                try fileManager.moveItem(at: fromURL!, to: toURL)
             } catch let moveError as NSError {
                 print(moveError.localizedDescription)
             }
@@ -100,31 +100,31 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     func startRecording() {
         
         //start the session if not already running
-        if  !session!.running {
+        if  !session!.isRunning {
             session!.startRunning()
         }
 
         
         //get path to movies directory
-        let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.MoviesDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first!
+        let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.moviesDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first! as NSString
         
-        let path : NSString = moviesPath.stringByAppendingPathComponent("1_in/")
+        let path : NSString = moviesPath.appendingPathComponent("1_in/") as NSString
         
         //calculate timestamp
-        let now = NSDate()
-        let formatter = NSDateFormatter()
+        let now = Date()
+        let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd' 'HH':'mm':'ss"
-        formatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-        let timestamp = formatter.stringFromDate(now)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        let timestamp = formatter.string(from: now)
         
         
         // make filename
         let fileName = "\(timestamp) CAM0"
-        let filePathNameExtension = path.stringByAppendingPathComponent("\(fileName).mov")
-        let newUrl : NSURL? = NSURL(fileURLWithPath: filePathNameExtension as String)
+        let filePathNameExtension = path.appendingPathComponent("\(fileName).mov")
+        let newUrl : URL? = URL(fileURLWithPath: filePathNameExtension as String)
 
         print("recording to file: \(filePathNameExtension)")
-        movieFileOutput!.startRecordingToOutputFileURL(newUrl!, recordingDelegate: self)
+        movieFileOutput!.startRecording(toOutputFileURL: newUrl!, recordingDelegate: self)
         
         //now rename the old file
         renameFileDone(recordingUrl)
@@ -145,17 +145,17 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //MARK: Delegate methods
     
-    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
+    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
         if error == nil {
             print("finished writing without error")
         } else {
             //print(error!.code)
             //print(error!.userInfo)
-            if error!.code == -11810 {
+            if error!._code == -11810 {
                 print("max file length reached, restarting recording")
                 startRecording()
             } else {
-                print("captureOuput called with", error!.userInfo)
+                print("captureOuput called with", error!._userInfo)
             }
         }
     }
