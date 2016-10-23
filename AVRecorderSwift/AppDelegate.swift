@@ -20,6 +20,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     var fileManager = NSFileManager()
     
+    //MARK: Initialization
     override init() {
         
         super.init()
@@ -120,12 +121,9 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         // make filename
         let fileName = "\(timestamp) CAM0"
         let filePathNameExtension = path.stringByAppendingPathComponent("\(fileName).mov")
-        print("preparing recording of file: \(filePathNameExtension)")
-        
-        
         let newUrl : NSURL? = NSURL(fileURLWithPath: filePathNameExtension as String)
 
-        print("start recording")
+        print("recording to file: \(filePathNameExtension)")
         movieFileOutput!.startRecordingToOutputFileURL(newUrl!, recordingDelegate: self)
         
         //now rename the old file
@@ -157,7 +155,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
                 print("max file length reached, restarting recording")
                 startRecording()
             } else {
-                NSLog("captureOuput called with", error!.userInfo)
+                print("captureOuput called with", error!.userInfo)
             }
         }
     }

@@ -41,8 +41,8 @@ let appDelegate = AVRecorderDelegate()
 
 /*
 for _ in 1...4 {
-    appDelegate.startRecording()
-    sleep(10)
+appDelegate.startRecording()
+sleep(10)
 }
 appDelegate.stopRecording()
 */
@@ -58,9 +58,9 @@ enum ApplicationState {
 
 struct UserPrompter {
     func printIntroduction() {
-        print("This program demonstrates the use of ORSSerialPort")
-        print("in a Foundation-based command-line tool.")
-        print("Please see http://github.com/armadsen/ORSSerialPort/\nor email andrew@openreelsoftware.com for more information.\n")
+        //print("This program demonstrates the use of ORSSerialPort")
+        //print("in a Foundation-based command-line tool.")
+        //print("Please see http://github.com/armadsen/ORSSerialPort/\nor email andrew@openreelsoftware.com for more information.\n")
     }
     
     func printPrompt() {
@@ -68,17 +68,16 @@ struct UserPrompter {
     }
     
     func promptForSerialPort() {
-        print("\nPlease select a serial port: \n")
+        print("Serial Ports:")
         let availablePorts = ORSSerialPortManager.sharedSerialPortManager().availablePorts
         var i = 0
         for port in availablePorts {
             print("\(i++). \(port.name)")
         }
-        printPrompt()
     }
     
     func promptForBaudRate() {
-        print("\nPlease enter a baud rate: ", terminator: "");
+        print("Baud rate:", terminator: "");
     }
 }
 
@@ -96,18 +95,19 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     
     func runProcessingInput() {
         setbuf(stdout, nil)
+        
+        /*
         standardInputFileHandle.readabilityHandler = { (fileHandle: NSFileHandle) in
-            let data = fileHandle.availableData
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self.handleUserInput(data)
-            })
+        let data = fileHandle.availableData
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in self.handleUserInput(data) })
         }
+        */
         
         prompter.printIntroduction()
         
         let availablePorts = ORSSerialPortManager.sharedSerialPortManager().availablePorts
         if availablePorts.count == 0 {
-            print("No connected serial ports found. Please connect your USB to serial adapter(s) and run the program again.\n")
+            print("No connected serial ports found. Please connect your USB to serial adapter(s) and run the program again.")
             exit(EXIT_SUCCESS)
         }
         prompter.promptForSerialPort()
@@ -121,7 +121,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
             }
             portNumber++
         }
-
+        
         setupAndOpenPortWithSelectionString(String(portNumber), availablePorts: availablePorts)
         setBaudRateOnPortWithString(usbButtonDeviceBaudRate)
         
@@ -146,7 +146,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         selectionString = selectionString.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         if let baudRate = Int(selectionString) {
             self.serialPort?.baudRate = baudRate
-            print("Baud rate set to \(baudRate)", terminator: "")
+            print("Baud rate set to \(baudRate)")
             return true
         } else {
             return false
@@ -195,23 +195,15 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
             
             if string.containsString("start") {
                 print("Aufnahme starten!\n")
-                //dispatch_async(dispatch_get_main_queue()) {
-                    appDelegate.startRecording()
-                //}
-
+                appDelegate.startRecording()
+                
             }
             
             if string.containsString("stop") {
                 print("Aufnahme stoppen!\n")
-                //dispatch_async(dispatch_get_main_queue()) {
-                    appDelegate.stopRecording()
-            
-                //}
+                appDelegate.stopRecording()
             }
-            
-            
         }
-        prompter.printPrompt()
     }
     
     func serialPortWasRemovedFromSystem(serialPort: ORSSerialPort) {
@@ -230,10 +222,11 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     }
 }
 
+//run the file handler
+dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+    FileHandler().run()
+}
 
-// put serial handling in a low prio queue
-//dispatch_sync(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-    StateMachine().runProcessingInput()
-//}
-
+//run the state machine
+StateMachine().runProcessingInput()
 
