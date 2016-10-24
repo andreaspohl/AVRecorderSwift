@@ -132,7 +132,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     }
     
     // MARK: Port Settings
-    func setupAndOpenPortWithSelectionString(_ selectionString: String, availablePorts: [ORSSerialPort]) -> Bool {
+    @discardableResult func setupAndOpenPortWithSelectionString(_ selectionString: String, availablePorts: [ORSSerialPort]) -> Bool {
         var selectionString = selectionString
         selectionString = selectionString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if let index = Int(selectionString) {
@@ -144,7 +144,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         }
     }
     
-    func setBaudRateOnPortWithString(_ selectionString: String) -> Bool {
+    @discardableResult func setBaudRateOnPortWithString(_ selectionString: String) -> Bool {
         var selectionString = selectionString
         selectionString = selectionString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if let baudRate = Int(selectionString) {
