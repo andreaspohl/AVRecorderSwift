@@ -35,9 +35,11 @@ class FileHandler: NSObject {
                 if file.contains("done.mov") {
                     debugPrint("moving file from 1_in to 2_stitched: ", file)
                     
-                    let fromPathFileNameExtension = fromPath.appendingPathComponent("\(file)")
+                    let toFile : String = file.replacingOccurrences(of: " done", with: "")
+                    
+                    let fromPathFileNameExtension = fromPath.appendingPathComponent(file)
 
-                    let toPathFileNameExtension = toPath.appendingPathComponent(file)
+                    let toPathFileNameExtension = toPath.appendingPathComponent(toFile)
                     
                     let fromURL : URL = URL(fileURLWithPath: fromPathFileNameExtension as String)
                     let toURL : URL = URL(fileURLWithPath: toPathFileNameExtension as String)
