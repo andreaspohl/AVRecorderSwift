@@ -23,11 +23,16 @@ class FileHandler: NSObject {
         //get path to movies directory
         let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.moviesDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first! as NSString
         
-        let fromPath : NSString = moviesPath.appendingPathComponent("1_in/") as NSString
-        let toPath : NSString = moviesPath.appendingPathComponent("2_stitched/") as NSString
+        
+        let inPath : NSString = moviesPath.appendingPathComponent("1_in/") as NSString
+        let stitchedPath : NSString = moviesPath.appendingPathComponent("2_stitched/") as NSString
+        let procPath : NSString = moviesPath.appendingPathComponent("3_processed/") as NSString
+        
         
         while isRunning {
-            let files = try! fileManager.contentsOfDirectory(atPath: fromPath as String)
+
+            //move from 1_in to 2_stitched
+            var files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
             
             print("\nchecking 1_in... ")
             
@@ -37,9 +42,35 @@ class FileHandler: NSObject {
                     
                     let toFile : String = file.replacingOccurrences(of: " done", with: "")
                     
-                    let fromPathFileNameExtension = fromPath.appendingPathComponent(file)
-
-                    let toPathFileNameExtension = toPath.appendingPathComponent(toFile)
+                    let fromPathFileNameExtension = inPath.appendingPathComponent(file)
+                    
+                    let toPathFileNameExtension = stitchedPath.appendingPathComponent(toFile)
+                    
+                    let fromURL : URL = URL(fileURLWithPath: fromPathFileNameExtension as String)
+                    let toURL : URL = URL(fileURLWithPath: toPathFileNameExtension as String)
+                    
+                    do {
+                        try fileManager.moveItem(at: fromURL, to: toURL)
+                    } catch let moveError as NSError {
+                        print(moveError.localizedDescription)
+                    }
+                }
+            }
+            
+            //move from 2_stitched to 3_processed
+            files = try! fileManager.contentsOfDirectory(atPath: stitchedPath as String)
+            
+            print("\nchecking 2_stitched... ")
+            
+            for file in files {
+                if file.contains("stitched.mov") {
+                    debugPrint("moving file from 2_stitched to 3_processed: ", file)
+                    
+                    let toFile : String = file.replacingOccurrences(of: " stitched", with: "")
+                    
+                    let fromPathFileNameExtension = stitchedPath.appendingPathComponent(file)
+                    
+                    let toPathFileNameExtension = procPath.appendingPathComponent(toFile)
                     
                     let fromURL : URL = URL(fileURLWithPath: fromPathFileNameExtension as String)
                     let toURL : URL = URL(fileURLWithPath: toPathFileNameExtension as String)

@@ -230,6 +230,11 @@ DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
     FileHandler().run()
 }
 
+//run the stitcher
+DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
+    Stitcher().run()
+}
+
 //run the state machine
 StateMachine().runProcessingInput()
 
