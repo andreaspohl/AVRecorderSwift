@@ -10,6 +10,7 @@
 #define AVRecorderSwift_Bridging_Header_h
 
 #import "ORSSerial/ORSSerialPort.h"
+#import "MotionWrapper.h"
 
 
 #endif /* AVRecorderSwift_Bridging_Header_h */

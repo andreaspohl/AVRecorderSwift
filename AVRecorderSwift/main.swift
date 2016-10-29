@@ -235,6 +235,12 @@ DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
     Stitcher().run()
 }
 
+//run the video processor
+DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
+    VideoProcessor().run()
+}
+
+
 //run the state machine
 StateMachine().runProcessingInput()
 

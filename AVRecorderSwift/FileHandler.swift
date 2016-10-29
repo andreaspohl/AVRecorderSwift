@@ -34,7 +34,7 @@ class FileHandler: NSObject {
             //move from 1_in to 2_stitch
             var files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
             
-            print("\nchecking 1_in... ")
+            print("\nFileHandler checking 1_in... ")
             
             for file in files {
                 if file.contains("done.mov") {
@@ -60,7 +60,7 @@ class FileHandler: NSObject {
             //move from 2_stitch to 3_process
             files = try! fileManager.contentsOfDirectory(atPath: stitchedPath as String)
             
-            print("\nchecking 2_stitch... ")
+            print("\nFileHandler checking 2_stitch... ")
             
             for file in files {
                 if file.contains("done.mov") {
