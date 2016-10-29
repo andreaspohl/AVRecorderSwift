@@ -39,8 +39,3 @@ makeFile
 *.build/
 build/*
 Pods/*
-build/Debug/AVRecorderSwift
-
-build/Debug/AVRecorderSwift.swiftmodule/x86_64.swiftdoc
-
-build/Debug/AVRecorderSwift.swiftmodule/x86_64.swiftmodule
