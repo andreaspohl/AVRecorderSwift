@@ -17,6 +17,7 @@
 		E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B41C6B8B9F00EB4BE5 /* ORSSerialPortManager.m */; };
 		E193D5BB1C6B8B9F00EB4BE5 /* ORSSerialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */; };
 		E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B6698C1DC271CD008B4734 /* Stitcher.swift */; };
+		E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
 		E30CE1212898C6726BAF65E7 /* Pods_AVRecorderSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */; };
 /* End PBXBuildFile section */
 
@@ -53,6 +54,8 @@
 		E193D5B51C6B8B9F00EB4BE5 /* ORSSerialRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialRequest.h; path = Frameworks/ORSSerialPort/Source/ORSSerialRequest.h; sourceTree = "<group>"; };
 		E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialRequest.m; path = Frameworks/ORSSerialPort/Source/ORSSerialRequest.m; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
+		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
+		E1E3B6771DC4B3E900051771 /* Motion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Motion.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +107,8 @@
 				E1B6698C1DC271CD008B4734 /* Stitcher.swift */,
 				E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */,
 				E193D5AB1C6B8B8A00EB4BE5 /* ORSSerialPort */,
+				E1E3B6761DC4B3E900051771 /* Motion.cpp */,
+				E1E3B6771DC4B3E900051771 /* Motion.hpp */,
 			);
 			path = AVRecorderSwift;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 				E193D5B91C6B8B9F00EB4BE5 /* ORSSerialPort.m in Sources */,
 				E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */,
 				E193D5BB1C6B8B9F00EB4BE5 /* ORSSerialRequest.m in Sources */,
+				E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */,
 				E193D5B81C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m in Sources */,
 				E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */,
 				E127517F1C4A422F004BE799 /* main.swift in Sources */,

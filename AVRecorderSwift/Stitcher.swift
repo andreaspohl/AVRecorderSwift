@@ -23,7 +23,7 @@ class Stitcher: NSObject {
         //get path to movies directory
         let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.moviesDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first! as NSString
         
-        let inPath : NSString = moviesPath.appendingPathComponent("2_stitched/") as NSString
+        let inPath : NSString = moviesPath.appendingPathComponent("2_stitch/") as NSString
         
         while isRunning {
             let files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
@@ -31,14 +31,12 @@ class Stitcher: NSObject {
             print("\nchecking 2_stiched... ")
             
             for file in files {
-                if file.contains("done.mov") {
-                    // do nothing, this movie is already stiched
-                } else {
+                if file.contains("new.mov") {
                     debugPrint("stitching: ", file)
                     
                     //TODO: implement stitching (replace below dummy code)
                     
-                    let toFile : String = file.replacingOccurrences(of: ".mov", with: " stitched.mov")
+                    let toFile : String = file.replacingOccurrences(of: " new.mov", with: " done.mov")
                     
                     let fromPathFileNameExtension = inPath.appendingPathComponent(file)
                     

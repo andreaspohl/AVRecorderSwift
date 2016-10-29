@@ -25,22 +25,22 @@ class FileHandler: NSObject {
         
         
         let inPath : NSString = moviesPath.appendingPathComponent("1_in/") as NSString
-        let stitchedPath : NSString = moviesPath.appendingPathComponent("2_stitched/") as NSString
-        let procPath : NSString = moviesPath.appendingPathComponent("3_processed/") as NSString
+        let stitchedPath : NSString = moviesPath.appendingPathComponent("2_stitch/") as NSString
+        let procPath : NSString = moviesPath.appendingPathComponent("3_process/") as NSString
         
         
         while isRunning {
 
-            //move from 1_in to 2_stitched
+            //move from 1_in to 2_stitch
             var files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
             
             print("\nchecking 1_in... ")
             
             for file in files {
                 if file.contains("done.mov") {
-                    debugPrint("moving file from 1_in to 2_stitched: ", file)
+                    debugPrint("moving file from 1_in to 2_stitch: ", file)
                     
-                    let toFile : String = file.replacingOccurrences(of: " done", with: "")
+                    let toFile : String = file.replacingOccurrences(of: " done.mov", with: " new.mov")
                     
                     let fromPathFileNameExtension = inPath.appendingPathComponent(file)
                     
@@ -57,16 +57,16 @@ class FileHandler: NSObject {
                 }
             }
             
-            //move from 2_stitched to 3_processed
+            //move from 2_stitch to 3_process
             files = try! fileManager.contentsOfDirectory(atPath: stitchedPath as String)
             
-            print("\nchecking 2_stitched... ")
+            print("\nchecking 2_stitch... ")
             
             for file in files {
-                if file.contains("stitched.mov") {
-                    debugPrint("moving file from 2_stitched to 3_processed: ", file)
+                if file.contains("done.mov") {
+                    debugPrint("moving file from 2_stitch to 3_process: ", file)
                     
-                    let toFile : String = file.replacingOccurrences(of: " stitched", with: "")
+                    let toFile : String = file.replacingOccurrences(of: " done.mov", with: " new.mov")
                     
                     let fromPathFileNameExtension = stitchedPath.appendingPathComponent(file)
                     
