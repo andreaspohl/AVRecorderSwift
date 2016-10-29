@@ -39,3 +39,4 @@ makeFile
 *.build/
 build/*
 Pods/*
+Frameworks/ORSSerialPort/
