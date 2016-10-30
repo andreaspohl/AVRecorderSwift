@@ -19,6 +19,7 @@ using namespace cv;
 using namespace std;
 
 void Motion::processVideo(const char * videoFileName) {
-        cout << videoFileName;
+    cout << "Motion.processVideo";
+    cout << videoFileName;
 }
 
