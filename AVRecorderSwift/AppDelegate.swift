@@ -60,8 +60,10 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
             print("output added to session")
         }
         
-        //set max movie duration, not too long, otherwise motion detection gets slow
-        let seconds : Int64 = 60
+        //set max movie duration, 10 minutes seems ok
+        //should not exceed 4GB because of openCV
+        //est. 4MB/sec --> max 4000 sec
+        let seconds : Int64 = 600
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration

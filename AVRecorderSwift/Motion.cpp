@@ -61,7 +61,9 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
 //max frames per file, estimated to not exceed the opencv 4GB file size limit
-const static int MAX_FRAMES = 50000;
+//further limited to make short output movies, as VideoWriter slows down extremely with larger file size
+//250 frames at 25 fps --> 10 sec.
+const static int MAX_FRAMES = 125;
 
 //int to string helper function
 string intToString(int number) {
@@ -340,8 +342,8 @@ void Motion::processVideo(const char * videoFileName) {
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
         
         //just show so that there is something
-        imshow("StartFrame", frame);
-        imshow("Mask", mask);
+        //imshow("StartFrame", frame);
+        //imshow("Mask", mask);
         
         //check if the video has reach its last frame.
         //we add '-2' because we are reading two frames from the video at a time.
@@ -393,8 +395,8 @@ void Motion::processVideo(const char * videoFileName) {
             
             if (debugMode == true) {
                 //show the difference image and threshold image
-                imshow("Difference Image", differenceImage);
-                imshow("Threshold Image", thresholdImage);
+                //imshow("Difference Image", differenceImage);
+                //imshow("Threshold Image", thresholdImage);
             } else {
                 //if not in debug mode, destroy the windows so we don't see them anymore
                 destroyWindow("Difference Image");
@@ -418,7 +420,7 @@ void Motion::processVideo(const char * videoFileName) {
             
             if (debugMode == true) {
                 //show the threshold image after it's been "blurred"
-                imshow("Final Threshold Image", thresholdImage);
+                //imshow("Final Threshold Image", thresholdImage);
             } else {
                 //if not in debug mode, destroy the windows so we don't see them anymore
                 destroyWindow("Final Threshold Image");
@@ -441,7 +443,7 @@ void Motion::processVideo(const char * videoFileName) {
                 timestamp("destroy");
                 
                 if (showOutput) {
-                    imshow("Zoomed Image", zoomedImage);
+                    //imshow("Zoomed Image", zoomedImage);
                 }
                 
                 //measure time
@@ -461,7 +463,7 @@ void Motion::processVideo(const char * videoFileName) {
                 destroyWindow("Filtered Zoomed Image");
                 
                 //show our captured frame
-                imshow("Frame", frame);
+                //imshow("Frame", frame);
             }
             
             //check for max file size, if MAX_FRAMES is exceeded, open a new file.
