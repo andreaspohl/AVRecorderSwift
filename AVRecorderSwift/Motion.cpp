@@ -13,6 +13,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 
 using namespace cv;
@@ -87,6 +88,17 @@ inline void timestamp(string s) {
         cout << setw(10) << s << ":" << setfill(' ') << setw(10) << (int)((t1 - t0) / getTickFrequency() * 1000) << " ms" << endl;
         t0 = t1;
     }
+}
+
+//replace part in string
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+        subject.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
+    return subject;
 }
 
 void inertiaFilter(Point &p) {
@@ -257,9 +269,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
 }
 
 
-void Motion::processVideo(const char * videoFileName) {
+void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with";
-    cout << videoFileName;
+    cout << pathName;
     cout << "\n";
 
     //some boolean variables for added functionality
@@ -269,9 +281,15 @@ void Motion::processVideo(const char * videoFileName) {
     bool pause = false;
     
     //switch to show the output stream
-    bool showOutput = true;
+    bool showOutput = false;
     
 
+    //strip input file name of ´new´
+    string sPathName = (string) pathName;
+    string videoFileName = sPathName.substr(sPathName.find_last_of("/") + 1 );
+    string path = sPathName.substr(0, sPathName.find_last_of("/") + 1 );
+    string inFileNameNew = videoFileName;
+    string inFileName = inFileNameNew.substr(0, inFileNameNew.find_last_of(" ")); //get the filename without ´new´
     //motionTracking section
     
     //set up the matrices that we will need
@@ -301,15 +319,12 @@ void Motion::processVideo(const char * videoFileName) {
     //video output
     VideoWriter outVideo;
     
-    //use for livecam
-    //capture.open(0);
-    
     //set to true when the video should be restarted after ending
     bool loopVideo = false;
     do {
         
         //we can loop the video by re-opening the capture every time the video reaches its last frame
-        capture.open(videoFileName);
+        capture.open(pathName);
         
         if (!capture.isOpened()) {
             cout << "ERROR ACQUIRING VIDEO FEED\n";
@@ -326,9 +341,8 @@ void Motion::processVideo(const char * videoFileName) {
         int frameCount = 0; //we track the file size to limit max file size
         int fileCount = 1; //files are numbered,
         
-        string baseFileName = " done";
-        string fileName = baseFileName + std::to_string(fileCount) + ".mov";
-        
+        string fileName = path + inFileName + " " + std::to_string(fileCount) + " processing.mov";
+      
         outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
         if (!outVideo.isOpened()) {
             cout << "ERROR OPENING OUTPUT STREAM\n";
@@ -471,7 +485,7 @@ void Motion::processVideo(const char * videoFileName) {
                 frameCount = 0;
                 outVideo.release();
                 fileCount++;
-                fileName = baseFileName + std::to_string(fileCount) + ".mov";
+                fileName = path + inFileName + " " + std::to_string(fileCount) + " processing.mov";
                 outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
                 if (!outVideo.isOpened()) {
                     cout << "ERROR OPENING OUTPUT STREAM\n";
@@ -536,6 +550,13 @@ void Motion::processVideo(const char * videoFileName) {
         //release the capture before re-opening and looping again.
         capture.release();
     } while (loopVideo);
+    
+    //write file to indicate that conversion is finished
+    std::string finishedName = path + inFileName + " finished.txt";
+    ofstream file;
+    file.open(finishedName);
+    file << inFileName;
+    file.close();
     
     return;
     

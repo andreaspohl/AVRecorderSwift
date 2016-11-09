@@ -114,7 +114,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //calculate timestamp
         let now = Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd' 'HH':'mm':'ss"
+        formatter.dateFormat = "yyyy-MM-dd' 'HH'-'mm'-'ss"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         let timestamp = formatter.string(from: now)
         
