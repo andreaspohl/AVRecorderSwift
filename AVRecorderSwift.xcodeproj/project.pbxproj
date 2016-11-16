@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E11CCEE21DDCBAE3006F5F8A /* VideoMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11CCEE11DDCBAE3006F5F8A /* VideoMerger.swift */; };
 		E127517F1C4A422F004BE799 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E127517E1C4A422F004BE799 /* main.swift */; };
 		E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12751851C4AA29D004BE799 /* AppDelegate.swift */; };
 		E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E159CFB81DBCC073007D00B5 /* FileHandler.swift */; };
@@ -39,6 +40,7 @@
 		1147ADD43F63D9172CFEC33D /* Pods-AVRecorderSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVRecorderSwift.release.xcconfig"; path = "Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift.release.xcconfig"; sourceTree = "<group>"; };
 		60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AVRecorderSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DF4C91D707E5D2617B48514 /* Pods-AVRecorderSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVRecorderSwift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift.debug.xcconfig"; sourceTree = "<group>"; };
+		E11CCEE11DDCBAE3006F5F8A /* VideoMerger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoMerger.swift; sourceTree = "<group>"; };
 		E127517B1C4A422F004BE799 /* AVRecorderSwift */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AVRecorderSwift; sourceTree = BUILT_PRODUCTS_DIR; };
 		E127517E1C4A422F004BE799 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E12751851C4AA29D004BE799 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				E159CFB81DBCC073007D00B5 /* FileHandler.swift */,
 				E1B6698C1DC271CD008B4734 /* Stitcher.swift */,
 				E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */,
+				E11CCEE11DDCBAE3006F5F8A /* VideoMerger.swift */,
 				E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */,
 				E1E3B67B1DC4C7E900051771 /* Motion */,
 				E193D5AB1C6B8B8A00EB4BE5 /* ORSSerialPort */,
@@ -259,6 +262,7 @@
 				E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */,
 				E193D5B81C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m in Sources */,
 				E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */,
+				E11CCEE21DDCBAE3006F5F8A /* VideoMerger.swift in Sources */,
 				E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */,
 				E127517F1C4A422F004BE799 /* main.swift in Sources */,
 				E193D5B71C6B8B9F00EB4BE5 /* ORSSerialBuffer.m in Sources */,

@@ -35,7 +35,13 @@ class VideoProcessor: NSObject {
                     
                     let fromPathFileNameExtension = inPath.appendingPathComponent(file)
                     
+                    //here comes the action: process the video
                     MotionWrapper().processVideoWrapped(fromPathFileNameExtension)
+                    
+                    //as processing is done, lets merge the videos
+                    let videoLabel : String = file.replacingOccurrences(of: " new.mov", with: "")
+                    VideoMerger().merge(videoLabel: videoLabel)
+
                     
                     //rename input file to "archive", so the get archived by FileHandler
 

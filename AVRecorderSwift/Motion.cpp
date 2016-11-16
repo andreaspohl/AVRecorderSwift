@@ -550,14 +550,7 @@ void Motion::processVideo(const char * pathName) {
         //release the capture before re-opening and looping again.
         capture.release();
     } while (loopVideo);
-    
-    //write file to indicate that conversion is finished
-    std::string finishedName = path + inFileName + " finished.txt";
-    ofstream file;
-    file.open(finishedName);
-    file << inFileName;
-    file.close();
-    
+        
     return;
     
 }
