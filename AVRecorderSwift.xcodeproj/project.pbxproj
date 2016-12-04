@@ -12,11 +12,6 @@
 		E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12751851C4AA29D004BE799 /* AppDelegate.swift */; };
 		E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E159CFB81DBCC073007D00B5 /* FileHandler.swift */; };
 		E17DAD911D1C68B100FBACB7 /* ORSSerial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */; };
-		E193D5B71C6B8B9F00EB4BE5 /* ORSSerialBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5AE1C6B8B9F00EB4BE5 /* ORSSerialBuffer.m */; };
-		E193D5B81C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B01C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m */; };
-		E193D5B91C6B8B9F00EB4BE5 /* ORSSerialPort.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B21C6B8B9F00EB4BE5 /* ORSSerialPort.m */; };
-		E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B41C6B8B9F00EB4BE5 /* ORSSerialPortManager.m */; };
-		E193D5BB1C6B8B9F00EB4BE5 /* ORSSerialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */; };
 		E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */; };
 		E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B6698C1DC271CD008B4734 /* Stitcher.swift */; };
 		E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
@@ -48,16 +43,6 @@
 		E172B8F91DC4E02500F3FE7E /* MotionWrapper.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = MotionWrapper.h; sourceTree = "<group>"; };
 		E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ORSSerial.framework; path = Pods/../build/Debug/ORSSerialPort/ORSSerial.framework; sourceTree = "<group>"; };
 		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
-		E193D5AD1C6B8B9F00EB4BE5 /* ORSSerialBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialBuffer.h; path = Frameworks/ORSSerialPort/Source/ORSSerialBuffer.h; sourceTree = "<group>"; };
-		E193D5AE1C6B8B9F00EB4BE5 /* ORSSerialBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialBuffer.m; path = Frameworks/ORSSerialPort/Source/ORSSerialBuffer.m; sourceTree = "<group>"; };
-		E193D5AF1C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialPacketDescriptor.h; path = Frameworks/ORSSerialPort/Source/ORSSerialPacketDescriptor.h; sourceTree = "<group>"; };
-		E193D5B01C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialPacketDescriptor.m; path = Frameworks/ORSSerialPort/Source/ORSSerialPacketDescriptor.m; sourceTree = "<group>"; };
-		E193D5B11C6B8B9F00EB4BE5 /* ORSSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialPort.h; path = Frameworks/ORSSerialPort/Source/ORSSerialPort.h; sourceTree = "<group>"; };
-		E193D5B21C6B8B9F00EB4BE5 /* ORSSerialPort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialPort.m; path = Frameworks/ORSSerialPort/Source/ORSSerialPort.m; sourceTree = "<group>"; };
-		E193D5B31C6B8B9F00EB4BE5 /* ORSSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialPortManager.h; path = Frameworks/ORSSerialPort/Source/ORSSerialPortManager.h; sourceTree = "<group>"; };
-		E193D5B41C6B8B9F00EB4BE5 /* ORSSerialPortManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialPortManager.m; path = Frameworks/ORSSerialPort/Source/ORSSerialPortManager.m; sourceTree = "<group>"; };
-		E193D5B51C6B8B9F00EB4BE5 /* ORSSerialRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORSSerialRequest.h; path = Frameworks/ORSSerialPort/Source/ORSSerialRequest.h; sourceTree = "<group>"; };
-		E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ORSSerialRequest.m; path = Frameworks/ORSSerialPort/Source/ORSSerialRequest.m; sourceTree = "<group>"; };
 		E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MotionWrapper.mm; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
 		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
@@ -116,27 +101,8 @@
 				E11CCEE11DDCBAE3006F5F8A /* VideoMerger.swift */,
 				E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */,
 				E1E3B67B1DC4C7E900051771 /* Motion */,
-				E193D5AB1C6B8B8A00EB4BE5 /* ORSSerialPort */,
 			);
 			path = AVRecorderSwift;
-			sourceTree = "<group>";
-		};
-		E193D5AB1C6B8B8A00EB4BE5 /* ORSSerialPort */ = {
-			isa = PBXGroup;
-			children = (
-				E193D5AD1C6B8B9F00EB4BE5 /* ORSSerialBuffer.h */,
-				E193D5AE1C6B8B9F00EB4BE5 /* ORSSerialBuffer.m */,
-				E193D5AF1C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.h */,
-				E193D5B01C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m */,
-				E193D5B11C6B8B9F00EB4BE5 /* ORSSerialPort.h */,
-				E193D5B21C6B8B9F00EB4BE5 /* ORSSerialPort.m */,
-				E193D5B31C6B8B9F00EB4BE5 /* ORSSerialPortManager.h */,
-				E193D5B41C6B8B9F00EB4BE5 /* ORSSerialPortManager.m */,
-				E193D5B51C6B8B9F00EB4BE5 /* ORSSerialRequest.h */,
-				E193D5B61C6B8B9F00EB4BE5 /* ORSSerialRequest.m */,
-			);
-			name = ORSSerialPort;
-			path = ..;
 			sourceTree = "<group>";
 		};
 		E1E3B67B1DC4C7E900051771 /* Motion */ = {
@@ -256,16 +222,11 @@
 				E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */,
 				E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */,
 				E1E3B67A1DC4C4A800051771 /* VideoProcessor.swift in Sources */,
-				E193D5B91C6B8B9F00EB4BE5 /* ORSSerialPort.m in Sources */,
 				E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */,
-				E193D5BB1C6B8B9F00EB4BE5 /* ORSSerialRequest.m in Sources */,
 				E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */,
-				E193D5B81C6B8B9F00EB4BE5 /* ORSSerialPacketDescriptor.m in Sources */,
-				E193D5BA1C6B8B9F00EB4BE5 /* ORSSerialPortManager.m in Sources */,
 				E11CCEE21DDCBAE3006F5F8A /* VideoMerger.swift in Sources */,
 				E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */,
 				E127517F1C4A422F004BE799 /* main.swift in Sources */,
-				E193D5B71C6B8B9F00EB4BE5 /* ORSSerialBuffer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,6 +338,7 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lopencv_calib3d",
 					"-lopencv_core",
@@ -408,12 +370,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Debug/ORSSerialPort",
-				);
+				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -436,12 +395,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Debug/ORSSerialPort",
-				);
+				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = /usr/local/include;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
