@@ -20,14 +20,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		E12751791C4A422F004BE799 /* CopyFiles */ = {
+		E1BDDF701DF4764600414239 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = "";
+			dstSubfolderSpec = 7;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -135,7 +135,7 @@
 				1BFBBFDF12AF80E8DC4100A1 /* [CP] Check Pods Manifest.lock */,
 				E12751771C4A422F004BE799 /* Sources */,
 				E12751781C4A422F004BE799 /* Frameworks */,
-				E12751791C4A422F004BE799 /* CopyFiles */,
+				E1BDDF701DF4764600414239 /* CopyFiles */,
 				4CD1F8BD012B70F1169613B3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -159,7 +159,9 @@
 				TargetAttributes = {
 					E127517A1C4A422F004BE799 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = ST37Z4RF7D;
 						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -255,6 +257,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -296,6 +299,7 @@
 					"-lopencv_videoio",
 					"-lopencv_videostab",
 				);
+				RESOURCES_TARGETED_DEVICE_FAMILY = "";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -323,6 +327,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -358,6 +363,7 @@
 					"-lopencv_videoio",
 					"-lopencv_videostab",
 				);
+				RESOURCES_TARGETED_DEVICE_FAMILY = "";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
@@ -370,6 +376,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = ST37Z4RF7D;
 				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
@@ -395,6 +403,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEVELOPMENT_TEAM = ST37Z4RF7D;
 				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
