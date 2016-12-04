@@ -42,7 +42,7 @@
 		E159CFB81DBCC073007D00B5 /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		E172B8F91DC4E02500F3FE7E /* MotionWrapper.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = MotionWrapper.h; sourceTree = "<group>"; };
 		E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ORSSerial.framework; path = Pods/../build/Debug/ORSSerialPort/ORSSerial.framework; sourceTree = "<group>"; };
-		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AVRecorderSwift-Bridging-Header.h"; path = "AVRecorderSwift/AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MotionWrapper.mm; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
 		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
