@@ -81,8 +81,6 @@ class VideoMerger: NSObject {
         let outPathURL = URL(fileURLWithPath: processPath.appendingPathComponent(videoLabel + " merging.mov"))
         
         //check if output file exists, if yes, delete first
-        debugPrint("debug: ", String(describing: outPathURL))
-        
         if fileManager.fileExists(atPath: String(describing: outPathURL)) {
             try? fileManager.removeItem(at: outPathURL)
         }

@@ -28,7 +28,7 @@ class Stitcher: NSObject {
         while isRunning {
             let files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
             
-            print("\nStitcher checking 2_stich... ")
+            print("Stitcher checking 2_stitch... ")
             
             for file in files {
                 if file.contains("new.mov") {

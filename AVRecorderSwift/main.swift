@@ -169,13 +169,13 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
             switch self.currentState {
             case .waitingForPortSelectionState(let availablePorts):
                 if !setupAndOpenPortWithSelectionString(string, availablePorts: availablePorts) {
-                    print("\nError: Invalid port selection.", terminator: "")
+                    print("Error: Invalid port selection.")
                     prompter.promptForSerialPort()
                     return
                 }
             case .waitingForBaudRateInputState:
                 if !setBaudRateOnPortWithString(string) {
-                    print("\nError: Invalid baud rate. Baud rate should consist only of numeric digits.", terminator: "")
+                    print("Error: Invalid baud rate. Baud rate should consist only of numeric digits.")
                     prompter.promptForBaudRate();
                     return;
                 }
@@ -194,16 +194,16 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     
     func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
         if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
-            print("\nReceived: \"\(string)\"", terminator: "")
+            print("Received: \"\(string)\"", terminator: "")
             
             if string.contains("start") {
-                print("Aufnahme starten!\n")
+                print("Aufnahme starten!")
                 appDelegate.startRecording()
                 
             }
             
             if string.contains("stop") {
-                print("Aufnahme stoppen!\n")
+                print("Aufnahme stoppen!")
                 appDelegate.stopRecording()
             }
         }

@@ -27,8 +27,8 @@ class VideoProcessor: NSObject {
         while isRunning {
             let files = try! fileManager.contentsOfDirectory(atPath: inPath as String)
             
-            print("\nVideoProcessor checking 3_process... ")
-            
+            print("VideoProcessor checking 3_process... ")
+                        
             for file in files {
                 if file.contains("new.mov") {
                     debugPrint("processing: ", file)

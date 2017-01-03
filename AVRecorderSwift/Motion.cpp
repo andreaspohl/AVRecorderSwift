@@ -270,9 +270,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
 
 
 void Motion::processVideo(const char * pathName) {
-    cout << "Motion.processVideo started with";
-    cout << pathName;
-    cout << "\n";
+    cout << "Motion.processVideo started with " << pathName << "\n";
 
     //some boolean variables for added functionality
     //these can be toggled by pressing 'd', 't' or 'p'
@@ -305,7 +303,7 @@ void Motion::processVideo(const char * pathName) {
     Mat zoomedImage;
     
     //mask
-    Mat mask = imread("mask/horseSampleShotMask.png", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", CV_LOAD_IMAGE_GRAYSCALE);
     if (!mask.data)                              // Check for invalid input
     {
         cout << "ERROR OPENING MASK IMAGE" << std::endl;
@@ -341,7 +339,7 @@ void Motion::processVideo(const char * pathName) {
         int frameCount = 0; //we track the file size to limit max file size
         int fileCount = 1; //files are numbered,
         
-        string fileName = path + inFileName + " " + std::to_string(fileCount) + " processing.mov";
+        string fileName = path + inFileName + " 00" + std::to_string(fileCount) + " processing.mov";
       
         outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
         if (!outVideo.isOpened()) {
@@ -393,10 +391,9 @@ void Motion::processVideo(const char * pathName) {
             timestamp("absdiff");
             
             //now mask the result to filter only the relevant regions of the picture
-            //TODO: reactive mask (needs to be same size as video)
-            //Mat temp;
-            //differenceImage.copyTo(temp, mask);
-            //temp.copyTo(differenceImage);
+            Mat temp;
+            differenceImage.copyTo(temp, mask);
+            temp.copyTo(differenceImage);
             
             //measure time
             timestamp("copy");
@@ -485,7 +482,10 @@ void Motion::processVideo(const char * pathName) {
                 frameCount = 0;
                 outVideo.release();
                 fileCount++;
-                fileName = path + inFileName + " " + std::to_string(fileCount) + " processing.mov";
+                //add leading 0 to fileCount so later the snippets get sorted correctly (001, 002, 003, ...)
+                std::string fileCountString = std::to_string(fileCount);
+                fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
+                fileName = path + inFileName + " " + fileCountString + " processing.mov";
                 outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
                 if (!outVideo.isOpened()) {
                     cout << "ERROR OPENING OUTPUT STREAM\n";
