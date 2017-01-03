@@ -45,7 +45,7 @@ using namespace std;
 using namespace cv;
 
 //our sensitivity value to be used in the threshold() function
-const static int SENSITIVITY_VALUE = 20;
+const static int SENSITIVITY_VALUE = 30; //was 20 initially
 //size of blur used to smooth the intensity image output from absdiff() function
 const static int BLUR_SIZE = 10;
 //we'll have just one object to search for and keep track of its position.
@@ -181,13 +181,15 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int y = theObject[1];
     
     //draw some crosshairs around the object
+    /*
     line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
     line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
     line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
     line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
     
     timestamp("line");
-    
+    */
+
     
     //draw a variable circle, depending on mass of object
     //m > 10'000 --> r = 1
@@ -237,9 +239,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     timestamp("filter");
     
-    circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
-    
-    timestamp("circle");
+    //draw circle
+    //circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
+    //timestamp("circle");
     
     //make zoomed Image
     //TODO: adapt to circle size

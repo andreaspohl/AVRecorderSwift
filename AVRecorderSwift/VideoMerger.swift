@@ -75,7 +75,8 @@ class VideoMerger: NSObject {
             }
         }
         
-        let exporter : AVAssetExportSession = AVAssetExportSession.init(asset: composition, presetName: AVAssetExportPresetHighestQuality)!
+        // AVAssetExportPresetMediumQuality AVAssetExportPresetHighestQuality
+        let exporter : AVAssetExportSession = AVAssetExportSession.init(asset: composition, presetName: AVAssetExportPresetMediumQuality)!
         
         //generate output file name
         let outPathURL = URL(fileURLWithPath: processPath.appendingPathComponent(videoLabel + " merging.mov"))
@@ -86,7 +87,8 @@ class VideoMerger: NSObject {
         }
         
         exporter.outputURL = outPathURL
-        exporter.outputFileType = AVFileTypeQuickTimeMovie
+        //exporter.outputFileType = AVFileTypeQuickTimeMovie
+        exporter.outputFileType = AVFileTypeMPEG4
         exporter.timeRange = CMTimeRange(start: kCMTimeZero, duration: totalDuration)
         exporter.metadata = nil
         exporter.exportAsynchronously(completionHandler: {
