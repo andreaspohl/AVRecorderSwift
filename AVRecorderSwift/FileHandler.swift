@@ -108,6 +108,18 @@ class FileHandler: NSObject {
                     } catch let moveError as NSError {
                         print(moveError.localizedDescription)
                     }
+                } else if file.contains("delete.mov") {
+                    debugPrint("deleting file from 3_process: ", file)
+                    
+                    let fromPathFileNameExtension = procPath.appendingPathComponent(file)
+                    
+                    let fromURL : URL = URL(fileURLWithPath: fromPathFileNameExtension as String)
+                    
+                    do {
+                        try fileManager.removeItem(at: fromURL)
+                    } catch let removeError as NSError {
+                        print(removeError.localizedDescription)
+                    }
                 } else if file.contains("archive.mov") {
                     debugPrint("moving file from 3_process to 5_archive: ", file)
                     

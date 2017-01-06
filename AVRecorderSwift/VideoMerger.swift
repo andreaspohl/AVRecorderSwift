@@ -31,7 +31,7 @@ class VideoMerger: NSObject {
                 if file.contains(" new.mov") {
                     outFile = file.replacingOccurrences(of: " new.mov", with: " archive.mov")
                 } else if file.contains(" processing.mov") {
-                    outFile = file.replacingOccurrences(of: " processing.mov", with: " archive.mov")
+                    outFile = file.replacingOccurrences(of: " processing.mov", with: " delete.mov")
                 } else if file.contains(" merging.mov") {
                     outFile = file.replacingOccurrences(of: " merging.mov", with: " done.mov")
                 }
