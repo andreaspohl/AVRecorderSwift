@@ -63,7 +63,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //set max movie duration, 10 minutes seems ok
         //should not exceed 4GB because of openCV
         //est. 4MB/sec --> max 4000 sec
-        let seconds : Int64 = 600
+        let seconds : Int64 = 660
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
@@ -104,7 +104,6 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         if  !session!.isRunning {
             session!.startRunning()
         }
-
         
         //get path to movies directory
         let moviesPath : NSString = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.moviesDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first! as NSString
@@ -156,7 +155,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
                 print("max file length reached, restarting recording")
                 startRecording()
             } else {
-                print("captureOuput called with", error!._userInfo)
+                print("captureOuput called with ", error!.localizedDescription)
             }
         }
     }

@@ -105,7 +105,7 @@ class VideoMerger: NSObject {
                     debugPrint("exporting")
                 case AVAssetExportSessionStatus.failed :
                     debugPrint("failed")
-                    debugPrint(exporter.error)
+                    debugPrint(exporter.error!)
                 case AVAssetExportSessionStatus.unknown :
                     debugPrint("unknown")
                 case AVAssetExportSessionStatus.waiting :

@@ -97,13 +97,6 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     func runProcessingInput() {
         setbuf(stdout, nil)
         
-        /*
-        standardInputFileHandle.readabilityHandler = { (fileHandle: NSFileHandle) in
-        let data = fileHandle.availableData
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in self.handleUserInput(data) })
-        }
-        */
-        
         prompter.printIntroduction()
         
         let availablePorts = ORSSerialPortManager.shared().availablePorts
@@ -156,42 +149,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         }
     }
     
-    // MARK: Data Processing
-    func handleUserInput(_ dataFromUser: Data) {
-        if let string = NSString(data: dataFromUser, encoding: String.Encoding.utf8.rawValue) as? String {
-            
-            if string.lowercased().hasPrefix("exit") ||
-                string.lowercased().hasPrefix("quit") {
-                    print("Quitting...")
-                    exit(EXIT_SUCCESS)
-            }
-            
-            switch self.currentState {
-            case .waitingForPortSelectionState(let availablePorts):
-                if !setupAndOpenPortWithSelectionString(string, availablePorts: availablePorts) {
-                    print("Error: Invalid port selection.")
-                    prompter.promptForSerialPort()
-                    return
-                }
-            case .waitingForBaudRateInputState:
-                if !setBaudRateOnPortWithString(string) {
-                    print("Error: Invalid baud rate. Baud rate should consist only of numeric digits.")
-                    prompter.promptForBaudRate();
-                    return;
-                }
-                currentState = .waitingForUserInputState
-                prompter.printPrompt()
-            case .waitingForUserInputState:
-                self.serialPort?.send(dataFromUser)
-                prompter.printPrompt()
-            default:
-                break;
-            }
-        }
-    }
-    
     // MARK: ORSSerialPortDelegate
-    
     func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
         if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
             print("Received: \"\(string)\"", terminator: "")
