@@ -63,7 +63,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //set max movie duration, 10 minutes seems ok
         //should not exceed 4GB because of openCV
         //est. 4MB/sec --> max 4000 sec
-        let seconds : Int64 = 660
+        let seconds : Int64 = 600
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
@@ -84,7 +84,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         let fileExtension = fileNameWithExtension.pathExtension
         
         let donePathAndFileNameWithExtension = path.appendingPathComponent("\(fileName) done.\(fileExtension)")
-                
+        
         let toURL = donePathAndFileNameWithExtension
         
         if recordingUrl != nil {
@@ -94,7 +94,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
                 print(moveError.localizedDescription)
             }
         }
-    
+        
     }
     
     //MARK: Control recording
@@ -145,17 +145,16 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //MARK: Delegate methods
     
-    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
+    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!,
+                 fromConnections connections: [Any]!, error: Error!) {
         if error == nil {
             print("finished writing without error")
         } else {
-            //print(error!.code)
-            //print(error!.userInfo)
-            if error!._code == -11810 {
+            if error._code == -11810 {
                 print("max file length reached, restarting recording")
                 startRecording()
             } else {
-                print("captureOuput called with ", error!.localizedDescription)
+                print("captureOuput called with ", error.localizedDescription)
             }
         }
     }

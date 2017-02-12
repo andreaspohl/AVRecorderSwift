@@ -12,26 +12,12 @@
 		E12751861C4AA29D004BE799 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12751851C4AA29D004BE799 /* AppDelegate.swift */; };
 		E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E159CFB81DBCC073007D00B5 /* FileHandler.swift */; };
 		E18F0E5D1E1FE64E00536273 /* ORSSerial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E18F0E5C1E1FE64E00536273 /* ORSSerial.framework */; };
-		E18F0E5E1E1FE99200536273 /* ORSSerial.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E17DAD901D1C68B100FBACB7 /* ORSSerial.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */; };
 		E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B6698C1DC271CD008B4734 /* Stitcher.swift */; };
 		E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
 		E1E3B67A1DC4C4A800051771 /* VideoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */; };
 		E30CE1212898C6726BAF65E7 /* Pods_AVRecorderSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60F74F475D4579EFA0BEA740 /* Pods_AVRecorderSwift.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		E1BDDF701DF4764600414239 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = ORSSerialPort;
-			dstSubfolderSpec = 6;
-			files = (
-				E18F0E5E1E1FE99200536273 /* ORSSerial.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1147ADD43F63D9172CFEC33D /* Pods-AVRecorderSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVRecorderSwift.release.xcconfig"; path = "Pods/Target Support Files/Pods-AVRecorderSwift/Pods-AVRecorderSwift.release.xcconfig"; sourceTree = "<group>"; };
@@ -141,7 +127,6 @@
 				1BFBBFDF12AF80E8DC4100A1 /* [CP] Check Pods Manifest.lock */,
 				E12751771C4A422F004BE799 /* Sources */,
 				E12751781C4A422F004BE799 /* Frameworks */,
-				E1BDDF701DF4764600414239 /* CopyFiles */,
 				4CD1F8BD012B70F1169613B3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -334,11 +319,12 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
-				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_NS_ASSERTIONS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -371,7 +357,6 @@
 				);
 				RESOURCES_TARGETED_DEVICE_FAMILY = "";
 				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};
@@ -381,16 +366,13 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = ST37Z4RF7D;
 				FRAMEWORK_SEARCH_PATHS = (
 					"${inherited}",
 					"$(PROJECT_DIR)/build/Release/ORSSerialPort",
 				);
-				HEADER_SEARCH_PATHS = /usr/local/include;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -400,7 +382,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AVRecorderSwift/AVRecorderSwift-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -411,16 +392,13 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = ST37Z4RF7D;
 				FRAMEWORK_SEARCH_PATHS = (
 					"${inherited}",
 					"$(PROJECT_DIR)/build/Release/ORSSerialPort",
 				);
-				HEADER_SEARCH_PATHS = /usr/local/include;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks @executable_path/ORSSerialPort";
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",

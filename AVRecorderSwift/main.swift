@@ -39,14 +39,6 @@ let usbButtonDeviceBaudRate = "9600"
 
 let appDelegate = AVRecorderDelegate()
 
-/*
-for _ in 1...4 {
-appDelegate.startRecording()
-sleep(10)
-}
-appDelegate.stopRecording()
-*/
-
 enum ApplicationState {
     case initializationState
     case waitingForPortSelectionState([ORSSerialPort])
