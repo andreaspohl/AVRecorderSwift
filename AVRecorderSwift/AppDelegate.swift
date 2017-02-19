@@ -34,6 +34,21 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         let deviceName = device?.localizedName
         print("DeviceName: \(deviceName)")
         
+        //lock focus (hope that it was set to infinity...)
+        do {
+            try device!.lockForConfiguration()
+        }
+        catch let error as NSError {
+            NSLog("\(error), \(error.localizedDescription)")
+        }
+        
+        if (device!.isFocusModeSupported(AVCaptureFocusMode.locked)) {
+            print("setting manual focus")
+            device?.focusMode = AVCaptureFocusMode.locked
+        }
+        
+        device!.unlockForConfiguration()
+        
         //set captureDevice
         var error: NSError? = nil
         do {
