@@ -266,8 +266,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     Mat cutImage;
     int xx, yy;
     xx = p.x - ( (int) zoomedWindow.width / 2 );
-    yy = p.y - ( (int) zoomedWindow.height / 2);
-
+    yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2); // fix vertical camera swing
+    
     //limit against border of image
     if (xx < 0) xx = 0;
     if (yy < 0) yy = 0;
