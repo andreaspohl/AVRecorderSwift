@@ -244,8 +244,24 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //timestamp("circle");
     
     //make zoomed Image
-    //TODO: adapt to circle size
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = Size(640, 360);
+    Size maxZoomedWindow = zoomedWindow;
+    
+    //calculate zoom window size
+    //if p.y is above cameraVerticalPosition --> maximal zoom
+    //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
+    //calculate zoom factor
+    double zoomFaktor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
+    zoomFaktor = 1.0 - (2.0 * (p.y - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
+    if (zoomFaktor > 1.0 ) {
+        zoomFaktor = 1.0;
+    } else if (zoomFaktor < 0.0) {
+        zoomFaktor = 0.0;
+    }
+    
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFaktor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFaktor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
     
     Mat cutImage;
     int xx, yy;
