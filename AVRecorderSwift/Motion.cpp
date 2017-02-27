@@ -244,7 +244,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //timestamp("circle");
     
     //make zoomed Image
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
     Size zoomedWindow = Size(640, 360);
     Size maxZoomedWindow = zoomedWindow;
     
@@ -256,12 +256,19 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     zoomFaktor = 1.0 - (2.0 * (p.y - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
     if (zoomFaktor > 1.0 ) {
         zoomFaktor = 1.0;
-    } else if (zoomFaktor < 0.0) {
-        zoomFaktor = 0.0;
+    } else if (zoomFaktor < 0.1) {
+        zoomFaktor = 0.1;
     }
     
     zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFaktor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
     zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFaktor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
+    
+    if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
+        zoomedWindow.width = IN_VIDEO_SIZE.width;
+    }
+    if (zoomedWindow.height > IN_VIDEO_SIZE.height) {
+        zoomedWindow.height = IN_VIDEO_SIZE.height;
+    }
     
     Mat cutImage;
     int xx, yy;
@@ -277,6 +284,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     if (xx > maxX) xx = maxX;
     if (yy > maxY) yy = maxY;
+    
+    cout << "cutImage " << xx << " " << yy << " " << zoomedWindow.width << " " << zoomedWindow.height << "\n";
     
     cutImage = cameraFeed(Rect(xx, yy, zoomedWindow.width, zoomedWindow.height));
     timestamp("rect");
