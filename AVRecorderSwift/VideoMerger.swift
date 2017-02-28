@@ -11,7 +11,7 @@ import AVKit
 import AVFoundation
 
 //merges the results of the video processing to one single video
-//renames the input files from " new.mov" to " archive.mov" or " done.mov" respectively
+//renames the input files from " processing.mov" to " .mov" and puts result into " done.mov"
 
 class VideoMerger: NSObject {
     
@@ -28,9 +28,7 @@ class VideoMerger: NSObject {
         for file in files {
             var outFile = ""
             if file.contains(videoLabel) {
-                if file.contains(" new.mov") {
-                    outFile = file.replacingOccurrences(of: " new.mov", with: " archive.mov")
-                } else if file.contains(" processing.mov") {
+                if file.contains(" processing.mov") {
                     outFile = file.replacingOccurrences(of: " processing.mov", with: " delete.mov")
                 } else if file.contains(" merging.mov") {
                     outFile = file.replacingOccurrences(of: " merging.mov", with: " done.mov")

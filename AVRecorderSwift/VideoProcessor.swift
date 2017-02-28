@@ -44,9 +44,6 @@ class VideoProcessor: NSObject {
 
                     
                     //rename input file to "archive", so they get archived by FileHandler
-
-                    //TODO: remove
-                    /* not necessary, already done by VideoMerger
                     let toFile : String = file.replacingOccurrences(of: " new.mov", with: " archive.mov")
                     let toPathFileNameExtension = inPath.appendingPathComponent(toFile)
                     
@@ -58,9 +55,8 @@ class VideoProcessor: NSObject {
                     } catch let moveError as NSError {
                         print(moveError.localizedDescription)
                     }
-                    */
                 }
-                sleep(10)
+                sleep(2)
             }
         }
     }
