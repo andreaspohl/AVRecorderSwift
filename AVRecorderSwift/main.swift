@@ -89,6 +89,13 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     func runProcessingInput() {
         setbuf(stdout, nil)
         
+        standardInputFileHandle.readabilityHandler = { (fileHandle: FileHandle) in
+            let data = fileHandle.availableData
+            DispatchQueue.main.async {
+                self.handleUserInput(data)
+            }
+        }
+        
         prompter.printIntroduction()
         
         let availablePorts = ORSSerialPortManager.shared().availablePorts
@@ -141,6 +148,49 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         }
     }
     
+    // MARK: Data Processing
+    func handleUserInput(_ dataFromUser: Data) {
+        if let string = NSString(data: dataFromUser, encoding: String.Encoding.utf8.rawValue) as? String {
+            
+            switch self.currentState {
+
+            case .waitingForPortSelectionState(let availablePorts):
+                if !setupAndOpenPortWithSelectionString(string, availablePorts: availablePorts) {
+                    print("\nError: Invalid port selection.", terminator: "")
+                    prompter.promptForSerialPort()
+                    return
+                }
+            
+            case .waitingForBaudRateInputState:
+                if !setBaudRateOnPortWithString(string) {
+                    print("\nError: Invalid baud rate. Baud rate should consist only of numeric digits.", terminator: "")
+                    prompter.promptForBaudRate();
+                    return;
+                }
+                currentState = .waitingForUserInputState
+                prompter.printPrompt()
+            
+            case .waitingForUserInputState:
+                //self.serialPort?.send(dataFromUser)
+                if string.lowercased().hasPrefix("start") {
+                    print("override start")
+                    appDelegate.movieNumber = 0 //reset movie count, to prolong session another 90 minutes
+                    appDelegate.startRecording()
+                }
+                
+                if string.lowercased().hasPrefix("stop") {
+                    print("override stop")
+                    appDelegate.stopRecording()
+                }
+                
+                prompter.printPrompt()
+            default:
+                break;
+            }
+        }
+    }
+    
+    
     // MARK: ORSSerialPortDelegate
     func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
         if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
@@ -148,8 +198,8 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
             
             if string.contains("start") {
                 print("Aufnahme starten!")
+                appDelegate.movieNumber = 0 //reset movie count, to prolong session another 90 minutes
                 appDelegate.startRecording()
-                
             }
             
             if string.contains("stop") {

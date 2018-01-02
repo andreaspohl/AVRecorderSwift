@@ -285,7 +285,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     if (xx > maxX) xx = maxX;
     if (yy > maxY) yy = maxY;
     
-    cout << "cutImage " << xx << " " << yy << " " << zoomedWindow.width << " " << zoomedWindow.height << "\n";
+    //cout << "cutImage " << xx << " " << yy << " " << zoomedWindow.width << " " << zoomedWindow.height << "\n";
     
     cutImage = cameraFeed(Rect(xx, yy, zoomedWindow.width, zoomedWindow.height));
     timestamp("rect");

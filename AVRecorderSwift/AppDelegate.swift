@@ -18,6 +18,9 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     var recordingUrl: URL? //here we keep the actual file URL where we are recording
     
+    let MAX_MOVIES = 9 // one movie is 10 minutes long, makes the max session duration 90 minutes
+    var movieNumber = 0 // the actual movie count
+    
     var fileManager = FileManager()
     
     //MARK: Initialization
@@ -78,7 +81,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //set max movie duration, 10 minutes seems ok
         //should not exceed 4GB because of openCV
         //est. 4MB/sec --> max 4000 sec
-        let seconds : Int64 = 600
+        let seconds : Int64 = 600 //600
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
@@ -114,6 +117,13 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //MARK: Control recording
     func startRecording() {
+        
+        //check if max movie count is reached
+        movieNumber = movieNumber + 1
+        if (movieNumber > MAX_MOVIES) {
+            stopRecording()
+            return
+        }
         
         //start the session if not already running
         if  !session!.isRunning {
@@ -151,6 +161,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     func stopRecording() {
         print("stop recording")
+        movieNumber = 0
         movieFileOutput!.stopRecording()
         renameFileDone(recordingUrl)
         recordingUrl = nil

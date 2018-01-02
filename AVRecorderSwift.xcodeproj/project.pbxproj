@@ -145,7 +145,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Andreas Pohl";
 				TargetAttributes = {
 					E127517A1C4A422F004BE799 = {
@@ -357,6 +357,7 @@
 				);
 				RESOURCES_TARGETED_DEVICE_FAMILY = "";
 				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};
