@@ -50,6 +50,11 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
             device?.focusMode = AVCaptureFocusMode.locked
         }
         
+        if (device!.isExposureModeSupported(AVCaptureExposureMode.continuousAutoExposure)) {
+            print("setting continuous auto exposure")
+            device?.exposureMode = AVCaptureExposureMode.continuousAutoExposure
+        }
+        
         device!.unlockForConfiguration()
         
         //set captureDevice
