@@ -150,7 +150,7 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
     
     // MARK: Data Processing
     func handleUserInput(_ dataFromUser: Data) {
-        if let string = NSString(data: dataFromUser, encoding: String.Encoding.utf8.rawValue) as? String {
+        if let string = NSString(data: dataFromUser, encoding: String.Encoding.utf8.rawValue) as String? {
             
             switch self.currentState {
 

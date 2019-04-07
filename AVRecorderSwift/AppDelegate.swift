@@ -11,6 +11,11 @@ import AVFoundation
 
 class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        print("writing to file...")
+    }
+    
+    
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
     var movieFileOutput: AVCaptureMovieFileOutput?
@@ -30,12 +35,12 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         //initialize session
         session = AVCaptureSession.init()
-        session!.sessionPreset = AVCaptureSessionPresetHigh
+        session!.sessionPreset = AVCaptureSession.Preset.high
         
         //look for device
-        device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
+        device = AVCaptureDevice.default(for: AVMediaType.video)
         let deviceName = device?.localizedName
-        print("DeviceName: \(deviceName)")
+        print("DeviceName: \(String(describing: deviceName))")
         
         //lock focus (hope that it was set to infinity...)
         do {
@@ -45,14 +50,14 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
             NSLog("\(error), \(error.localizedDescription)")
         }
         
-        if (device!.isFocusModeSupported(AVCaptureFocusMode.locked)) {
+        if (device!.isFocusModeSupported(AVCaptureDevice.FocusMode.locked)) {
             print("setting manual focus")
-            device?.focusMode = AVCaptureFocusMode.locked
+            device?.focusMode = AVCaptureDevice.FocusMode.locked
         }
         
-        if (device!.isExposureModeSupported(AVCaptureExposureMode.continuousAutoExposure)) {
+        if (device!.isExposureModeSupported(AVCaptureDevice.ExposureMode.continuousAutoExposure)) {
             print("setting continuous auto exposure")
-            device?.exposureMode = AVCaptureExposureMode.continuousAutoExposure
+            device?.exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
         }
         
         device!.unlockForConfiguration()
@@ -60,26 +65,26 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //set captureDevice
         var error: NSError? = nil
         do {
-            deviceInput = try AVCaptureDeviceInput(device: device)
+            deviceInput = try AVCaptureDeviceInput(device: device!)
             print("capture device set")
         } catch let error1 as NSError {
             error = error1
             deviceInput = nil
-            print("ERROR: could not set capture device \(error)")
+            print("ERROR: could not set capture device \(String(describing: error))")
         } catch {
             fatalError()
         }
         
         //add input to session
-        if session!.canAddInput(deviceInput) {
-            session!.addInput(deviceInput)
+        if session!.canAddInput(deviceInput!) {
+            session!.addInput(deviceInput!)
             print("input added to session")
         }
         
         //add output to session and connect to input
         movieFileOutput = AVCaptureMovieFileOutput()
-        if session!.canAddOutput(movieFileOutput) {
-            session!.addOutput(movieFileOutput)
+        if session!.canAddOutput(movieFileOutput!) {
+            session!.addOutput(movieFileOutput!)
             print("output added to session")
         }
         
@@ -88,7 +93,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         //est. 4MB/sec --> max 4000 sec
         let seconds : Int64 = 600 //600
         let preferredTimeScale : Int32 = 1
-        let maxDuration : CMTime = CMTimeMake(seconds, preferredTimeScale)
+        let maxDuration : CMTime = CMTimeMake(value: seconds, timescale: preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
     }
     
@@ -154,7 +159,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         let newUrl : URL? = URL(fileURLWithPath: filePathNameExtension as String)
 
         print("recording to file: \(filePathNameExtension)")
-        movieFileOutput!.startRecording(toOutputFileURL: newUrl!, recordingDelegate: self)
+        movieFileOutput!.startRecording(to: newUrl!, recordingDelegate: self)
         
         //now rename the old file
         renameFileDone(recordingUrl)

@@ -54,10 +54,10 @@ class VideoMerger: NSObject {
         
         //create the composition which will hold all the input tracks
         let composition = AVMutableComposition()
-        let compositionTrack = composition.addMutableTrack(withMediaType: AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+        let compositionTrack = composition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
         //TODO: audio track, add it from the unprocessed track
         
-        var totalDuration : CMTime = kCMTimeZero
+        var totalDuration : CMTime = CMTime.zero
         
         for file in files {
             //do this only for the files named according to videoLabel and "processing"
@@ -66,9 +66,9 @@ class VideoMerger: NSObject {
                 
                 let inURL : URL = URL(fileURLWithPath: processPath.appendingPathComponent(file) as String)
                 let asset : AVAsset = AVAsset.init(url: inURL)
-                let videoTrack : AVAssetTrack = asset.tracks(withMediaType: AVMediaTypeVideo).last!
+                let videoTrack : AVAssetTrack = asset.tracks(withMediaType: AVMediaType.video).last!
                 let trackDuration : CMTime = videoTrack.timeRange.duration
-                try! compositionTrack.insertTimeRange(CMTimeRangeMake(kCMTimeZero, trackDuration), of: videoTrack, at: totalDuration)
+                try! compositionTrack!.insertTimeRange(CMTimeRangeMake(start: CMTime.zero, duration: trackDuration), of: videoTrack, at: totalDuration)
                 totalDuration = CMTimeAdd(totalDuration, trackDuration)
             }
         }
@@ -86,8 +86,8 @@ class VideoMerger: NSObject {
         
         exporter.outputURL = outPathURL
         //exporter.outputFileType = AVFileTypeQuickTimeMovie
-        exporter.outputFileType = AVFileTypeMPEG4
-        exporter.timeRange = CMTimeRange(start: kCMTimeZero, duration: totalDuration)
+        exporter.outputFileType = AVFileType.mp4
+        exporter.timeRange = CMTimeRange(start: CMTime.zero, duration: totalDuration)
         exporter.metadata = nil
         exporter.exportAsynchronously(completionHandler: {
             DispatchQueue.main.async {
@@ -108,6 +108,8 @@ class VideoMerger: NSObject {
                     debugPrint("unknown")
                 case AVAssetExportSessionStatus.waiting :
                     debugPrint("waiting")
+                @unknown default:
+                    debugPrint("AVAssetExportSessionStatus not implemented")
                 }
             }
         })
