@@ -34,7 +34,7 @@
 import Foundation
 import ORSSerial
 
-let usbButtonDeviceId = "usbmodem1171481"
+let usbButtonDeviceId = "usbmodem"
 let usbButtonDeviceBaudRate = "9600"
 
 let appDelegate = AVRecorderDelegate()
