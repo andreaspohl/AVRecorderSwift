@@ -50,7 +50,7 @@ class VideoMerger: NSObject {
         
         //get all input files in 3_process
         let processPath = moviesPath.appendingPathComponent("3_process/") as NSString
-        let files = try! fileManager.contentsOfDirectory(atPath: processPath as String)
+        var files = try! fileManager.contentsOfDirectory(atPath: processPath as String)
         
         //create the composition which will hold all the input tracks
         let composition = AVMutableComposition()
@@ -58,6 +58,8 @@ class VideoMerger: NSObject {
         //TODO: audio track, add it from the unprocessed track
         
         var totalDuration : CMTime = CMTime.zero
+        
+        files.sort()
         
         for file in files {
             //do this only for the files named according to videoLabel and "processing"
