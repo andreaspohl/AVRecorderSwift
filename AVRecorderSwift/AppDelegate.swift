@@ -11,11 +11,6 @@ import AVFoundation
 
 class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        print("writing to file...")
-    }
-    
-    
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
     var movieFileOutput: AVCaptureMovieFileOutput?
@@ -181,18 +176,9 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     //MARK: Delegate methods
     
-    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!,
-                 fromConnections connections: [Any]!, error: Error!) {
-        if error == nil {
-            print("finished writing without error")
-        } else {
-            if error._code == -11810 {
-                print("max file length reached, restarting recording")
-                startRecording()
-            } else {
-                print("captureOuput called with ", error.localizedDescription)
-            }
-        }
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        print("writing to file...")
+        startRecording()
     }
 }
 
