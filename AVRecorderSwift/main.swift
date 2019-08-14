@@ -106,17 +106,23 @@ class StateMachine : NSObject, ORSSerialPortDelegate {
         prompter.promptForSerialPort()
         //currentState = .WaitingForPortSelectionState(availablePorts)
         
+        var portFound = false
         var portNumber = 0
         for port in availablePorts {
             print("\(port.name)")
             if port.name.contains(usbButtonDeviceId) {
+                portFound = true
                 break //device found
             }
             portNumber += 1
         }
         
-        setupAndOpenPortWithSelectionString(String(portNumber), availablePorts: availablePorts)
-        setBaudRateOnPortWithString(usbButtonDeviceBaudRate)
+        if portFound {
+            setupAndOpenPortWithSelectionString(String(portNumber), availablePorts: availablePorts)
+            setBaudRateOnPortWithString(usbButtonDeviceBaudRate)
+        } else {
+            print("no port found, starting anyway")
+        }
         
         currentState = .waitingForUserInputState
         

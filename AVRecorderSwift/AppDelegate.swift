@@ -28,6 +28,33 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         super.init()
         
+        var authorizationGranted = 0
+        
+        //verify and request for authorization
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: // The user has previously granted access to the camera.
+            authorizationGranted = 1
+            
+        case .notDetermined: // The user has not yet been asked for camera access.
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    authorizationGranted = 2
+                }
+            }
+            
+        case .denied: // The user has previously denied access.
+            authorizationGranted = 3
+            return
+            
+        case .restricted: // The user can't grant access due to restrictions.
+            authorizationGranted = 4
+            return
+        
+        default:
+            authorizationGranted = 5
+            return
+        }
+        
         //initialize session
         session = AVCaptureSession.init()
         session!.sessionPreset = AVCaptureSession.Preset.high

@@ -4,22 +4,6 @@
 //
 //  Created by Andreas Pohl on 29.10.16.
 //  Copyright © 2016 Andreas Pohl. All rights reserved.
-//
-
-#include "Motion.hpp"
-
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/videoio/videoio.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
-#include <iostream>
-#include <fstream>
-#include <stdio.h>
-
-using namespace cv;
-using namespace std;
-
-
 //Originally written by  Kyle Hounslow, December 2013
 //and modified by Andreas Pohl, November 2014 to December 2015
 //Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software")
@@ -36,11 +20,18 @@ using namespace std;
 //0.2 file slizing introduced to prevent 4GB overriding
 //0.3 trying to record and store to file
 
-#include <iostream>
-#include <iomanip>
+#include "Motion.hpp"
+
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
-using namespace cv;
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <iomanip>
+
 using namespace std;
 using namespace cv;
 
@@ -330,7 +321,7 @@ void Motion::processVideo(const char * pathName) {
     Mat zoomedImage;
     
     //mask
-    Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", IMREAD_GRAYSCALE);
     if (!mask.data)                              // Check for invalid input
     {
         cout << "ERROR OPENING MASK IMAGE" << std::endl;
@@ -361,14 +352,15 @@ void Motion::processVideo(const char * pathName) {
         //working codes:
         //CV_FOURCC('j', 'p', 'e', 'g');
         //CV_FOURCC('m', 'p', '4', 'v');
-        int videoCodec = CV_FOURCC('m', 'p', '4', 'v');
+        //int videoCodec = CV_FOURCC('m', 'p', '4', 'v');
+        int videoCodec = outVideo.fourcc('m', 'p', '4', 'v');
         
         int frameCount = 0; //we track the file size to limit max file size
         int fileCount = 1; //files are numbered,
         
         string fileName = path + inFileName + " 00" + std::to_string(fileCount) + " processing.mov";
       
-        outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
+        outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
         if (!outVideo.isOpened()) {
             cout << "ERROR OPENING OUTPUT STREAM\n";
             getchar();
@@ -388,7 +380,7 @@ void Motion::processVideo(const char * pathName) {
         //we add '-2' because we are reading two frames from the video at a time.
         //if this is not included, we get a memory error!
         //this while loop is not need for livecam
-        while (capture.get(CV_CAP_PROP_POS_FRAMES) < capture.get(CV_CAP_PROP_FRAME_COUNT) - 2) {
+        while (capture.get(CAP_PROP_POS_FRAMES) < capture.get(CAP_PROP_FRAME_COUNT) - 2) {
             
             timestamp("init");
             
@@ -513,7 +505,7 @@ void Motion::processVideo(const char * pathName) {
                 std::string fileCountString = std::to_string(fileCount);
                 fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
                 fileName = path + inFileName + " " + fileCountString + " processing.mov";
-                outVideo.open(fileName, videoCodec, capture.get(CV_CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
+                outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
                 if (!outVideo.isOpened()) {
                     cout << "ERROR OPENING OUTPUT STREAM\n";
                     getchar();
