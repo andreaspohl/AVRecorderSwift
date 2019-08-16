@@ -11,6 +11,12 @@ import AVFoundation
 
 class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
+    //set max movie duration, 10 minutes / 600 sec seems ok
+    //should not exceed 4GB because of openCV
+    //est. 4MB/sec --> max 4000 sec
+    let SECONDS : Int64 = 5
+
+    
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
     var movieFileOutput: AVCaptureMovieFileOutput?
@@ -27,33 +33,6 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     override init() {
         
         super.init()
-        
-        var authorizationGranted = 0
-        
-        //verify and request for authorization
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized: // The user has previously granted access to the camera.
-            authorizationGranted = 1
-            
-        case .notDetermined: // The user has not yet been asked for camera access.
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                if granted {
-                    authorizationGranted = 2
-                }
-            }
-            
-        case .denied: // The user has previously denied access.
-            authorizationGranted = 3
-            return
-            
-        case .restricted: // The user can't grant access due to restrictions.
-            authorizationGranted = 4
-            return
-        
-        default:
-            authorizationGranted = 5
-            return
-        }
         
         //initialize session
         session = AVCaptureSession.init()
@@ -110,10 +89,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
             print("output added to session")
         }
         
-        //set max movie duration, 10 minutes seems ok
-        //should not exceed 4GB because of openCV
-        //est. 4MB/sec --> max 4000 sec
-        let seconds : Int64 = 600 //600
+        let seconds = SECONDS
         let preferredTimeScale : Int32 = 1
         let maxDuration : CMTime = CMTimeMake(value: seconds, timescale: preferredTimeScale)
         movieFileOutput!.maxRecordedDuration = maxDuration
@@ -204,8 +180,12 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     //MARK: Delegate methods
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        print("writing to file...")
-        startRecording()
+        print("file has been written")
+        if (error != nil) {
+            // has most probably been finished because movie file has reached intenden size --> restart
+            startRecording()
+        }
     }
+    
 }
 
