@@ -346,7 +346,6 @@ void Motion::processVideo(const char * pathName) {
     
     if (!capture.isOpened()) {
         cout << "ERROR ACQUIRING VIDEO FEED\n";
-        getchar();
         return;
     }
     
@@ -365,7 +364,6 @@ void Motion::processVideo(const char * pathName) {
     outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
     if (!outVideo.isOpened()) {
         cout << "ERROR OPENING OUTPUT STREAM\n";
-        //getchar();
         return;
     }
     
@@ -380,12 +378,8 @@ void Motion::processVideo(const char * pathName) {
     //imshow("StartFrame", frame);
     //imshow("Mask", mask);
     
-    //debug
-    cout << "number of frames" + intToString(capture.get(CAP_PROP_FRAME_COUNT)) ;
-    
     while (true) {
         
-        cout << "frame number: " + intToString(capture.get(CAP_PROP_POS_FRAMES)) + "\n";
         timestamp("init");
         
         //set first grayImage to the last one read from camera
@@ -514,7 +508,6 @@ void Motion::processVideo(const char * pathName) {
             outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
             if (!outVideo.isOpened()) {
                 cout << "ERROR OPENING OUTPUT STREAM\n";
-                //getchar();
                 return;
             }
             

@@ -31,6 +31,9 @@
 //	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//TODO: set vid length back to 10 min
+//TODO: make tests
+
 import Foundation
 import ORSSerial
 
