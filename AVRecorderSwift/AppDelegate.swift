@@ -180,7 +180,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     //MARK: Delegate methods
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        print("file has been written")
+        print("finish recording")
         if (error != nil) {
             // has most probably been finished because movie file has reached intenden size --> restart
             startRecording()

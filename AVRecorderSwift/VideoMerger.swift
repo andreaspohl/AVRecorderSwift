@@ -116,7 +116,7 @@ class VideoMerger: NSObject {
             }
         })
         
-        debugPrint("exporting")
+        //debugPrint("exporting")
         
     }
 }

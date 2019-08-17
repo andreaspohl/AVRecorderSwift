@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <iomanip>
 
+#include <dispatch/dispatch.h>
+
 using namespace std;
 using namespace cv;
 
@@ -173,14 +175,14 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     //draw some crosshairs around the object
     /*
-    line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
-    line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
-    line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
-    line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
+     line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
+     line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
+     line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
+     line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
+     
+     timestamp("line");
+     */
     
-    timestamp("line");
-    */
-
     
     //draw a variable circle, depending on mass of object
     //m > 10'000 --> r = 1
@@ -289,7 +291,11 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
 
 void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
-
+    
+    //get main queue for displaying debug windows
+    //dispatch_queue_t main_q = dispatch_get_main_queue();
+    
+    
     //some boolean variables for added functionality
     //these can be toggled by pressing 'd', 't' or 'p'
     bool debugMode = false;
@@ -299,7 +305,7 @@ void Motion::processVideo(const char * pathName) {
     //switch to show the output stream
     bool showOutput = false;
     
-
+    
     //strip input file name of ´new´
     string sPathName = (string) pathName;
     string videoFileName = sPathName.substr(sPathName.find_last_of("/") + 1 );
@@ -324,10 +330,10 @@ void Motion::processVideo(const char * pathName) {
     Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", IMREAD_GRAYSCALE);
     if (!mask.data)                              // Check for invalid input
     {
-        cout << "ERROR OPENING MASK IMAGE" << std::endl;
-        return;
+        cout << "NO MASK IMAGE FOUND" << std::endl;
+    } else {
+        threshold(mask, mask, SENSITIVITY_VALUE, 255, THRESH_BINARY);
     }
-    threshold(mask, mask, SENSITIVITY_VALUE, 255, THRESH_BINARY);
     
     //video capture object.
     VideoCapture capture;
@@ -335,243 +341,241 @@ void Motion::processVideo(const char * pathName) {
     //video output
     VideoWriter outVideo;
     
-    //set to true when the video should be restarted after ending
-    bool loopVideo = false;
-    do {
+    //we can loop the video by re-opening the capture every time the video reaches its last frame
+    capture.open(pathName);
+    
+    if (!capture.isOpened()) {
+        cout << "ERROR ACQUIRING VIDEO FEED\n";
+        getchar();
+        return;
+    }
+    
+    //open output stream
+    //working codes:
+    //CV_FOURCC('j', 'p', 'e', 'g');
+    //CV_FOURCC('m', 'p', '4', 'v');
+    //int videoCodec = CV_FOURCC('m', 'p', '4', 'v');
+    int videoCodec = outVideo.fourcc('m', 'p', '4', 'v');
+    
+    int frameCount = 0; //we track the file size to limit max file size
+    int fileCount = 1; //files are numbered,
+    
+    string fileName = path + inFileName + " 00" + std::to_string(fileCount) + " processing.mov";
+    
+    outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
+    if (!outVideo.isOpened()) {
+        cout << "ERROR OPENING OUTPUT STREAM\n";
+        //getchar();
+        return;
+    }
+    
+    //read frame
+    bool success = capture.read(frame);
+    //convert frame to gray scale for frame differencing
+    if (success) {
+        cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
+    }
+    
+    //just show so that there is something
+    //imshow("StartFrame", frame);
+    //imshow("Mask", mask);
+    
+    //debug
+    cout << "number of frames" + intToString(capture.get(CAP_PROP_FRAME_COUNT)) ;
+    
+    while (true) {
         
-        //we can loop the video by re-opening the capture every time the video reaches its last frame
-        capture.open(pathName);
+        cout << "frame number: " + intToString(capture.get(CAP_PROP_POS_FRAMES)) + "\n";
+        timestamp("init");
         
-        if (!capture.isOpened()) {
-            cout << "ERROR ACQUIRING VIDEO FEED\n";
-            getchar();
-            return;
-        }
+        //set first grayImage to the last one read from camera
+        swap(grayImage1, grayImage2);
         
-        //open output stream
-        //working codes:
-        //CV_FOURCC('j', 'p', 'e', 'g');
-        //CV_FOURCC('m', 'p', '4', 'v');
-        //int videoCodec = CV_FOURCC('m', 'p', '4', 'v');
-        int videoCodec = outVideo.fourcc('m', 'p', '4', 'v');
+        //measure time
+        timestamp("swap");
         
-        int frameCount = 0; //we track the file size to limit max file size
-        int fileCount = 1; //files are numbered,
+        //read next frame
+        if (!capture.read(frame)) break;
         
-        string fileName = path + inFileName + " 00" + std::to_string(fileCount) + " processing.mov";
-      
-        outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
-        if (!outVideo.isOpened()) {
-            cout << "ERROR OPENING OUTPUT STREAM\n";
-            getchar();
-            return;
-        }
+        //measure time
+        timestamp("read");
         
-        //read frame
-        capture.read(frame);
+        //dispatch_async(main_q, ^{imshow("actualFrame", frame);} );
+        
         //convert frame to gray scale for frame differencing
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
         
-        //just show so that there is something
-        //imshow("StartFrame", frame);
-        //imshow("Mask", mask);
+        //measure time
+        timestamp("cvtColor");
         
-        //check if the video has reach its last frame.
-        //we add '-2' because we are reading two frames from the video at a time.
-        //if this is not included, we get a memory error!
-        //this while loop is not need for livecam
-        while (capture.get(CAP_PROP_POS_FRAMES) < capture.get(CAP_PROP_FRAME_COUNT) - 2) {
+        //perform frame differencing with the sequential images. This will output an "intensity image"
+        //do not confuse this with a threshold image, we will need to perform thresholding afterwards.
+        absdiff(grayImage1, grayImage2, differenceImage);
+        
+        //measure time
+        timestamp("absdiff");
+        
+        //now mask the result to filter only the relevant regions of the picture
+        Mat temp;
+        differenceImage.copyTo(temp, mask);
+        temp.copyTo(differenceImage);
+        
+        //measure time
+        timestamp("copy");
+        
+        //threshold intensity image at a given sensitivity value
+        threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+        
+        //measure time
+        timestamp("thresh");
+        
+        if (debugMode == true) {
+            //show the difference image and threshold image
+            //imshow("Difference Image", differenceImage);
+            //imshow("Threshold Image", thresholdImage);
+        } else {
+            //if not in debug mode, destroy the windows so we don't see them anymore
+            destroyWindow("Difference Image");
+            destroyWindow("Threshold Image");
+        }
+        
+        //measure time
+        timestamp("debug");
+        
+        //blur the image to get rid of the noise. This will output an intensity image
+        blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
+        
+        //measure time
+        timestamp("blur");
+        
+        //threshold again to obtain binary image from blur output
+        threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+        
+        //measure time
+        timestamp("thresh");
+        
+        if (debugMode == true) {
+            //show the threshold image after it's been "blurred"
+            //imshow("Final Threshold Image", thresholdImage);
+        } else {
+            //if not in debug mode, destroy the windows so we don't see them anymore
+            destroyWindow("Final Threshold Image");
+        }
+        
+        //measure time
+        timestamp("show");
+        
+        //if tracking enabled, search for movement in our thresholded image
+        if (trackingEnabled) {
             
-            timestamp("init");
-            
-            //set first grayImage to the last one read from camera
-            swap(grayImage1, grayImage2);
-            
-            //measure time
-            timestamp("swap");
-            
-            //read next frame
-            capture.read(frame);
-            
-            //measure time
-            timestamp("read");
-            
-            //convert frame to gray scale for frame differencing
-            cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
-            
-            //measure time
-            timestamp("cvtColor");
-            
-            //perform frame differencing with the sequential images. This will output an "intensity image"
-            //do not confuse this with a threshold image, we will need to perform thresholding afterwards.
-            absdiff(grayImage1, grayImage2, differenceImage);
-            
-            //measure time
-            timestamp("absdiff");
-            
-            //now mask the result to filter only the relevant regions of the picture
-            Mat temp;
-            differenceImage.copyTo(temp, mask);
-            temp.copyTo(differenceImage);
-            
-            //measure time
-            timestamp("copy");
-            
-            //threshold intensity image at a given sensitivity value
-            threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
-            
-            //measure time
-            timestamp("thresh");
-            
-            if (debugMode == true) {
-                //show the difference image and threshold image
-                //imshow("Difference Image", differenceImage);
-                //imshow("Threshold Image", thresholdImage);
-            } else {
-                //if not in debug mode, destroy the windows so we don't see them anymore
-                destroyWindow("Difference Image");
-                destroyWindow("Threshold Image");
-            }
-            
-            //measure time
-            timestamp("debug");
-            
-            //blur the image to get rid of the noise. This will output an intensity image
-            blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
-            
-            //measure time
-            timestamp("blur");
-            
-            //threshold again to obtain binary image from blur output
-            threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+            searchForMovement(thresholdImage, frame, zoomedImage);
             
             //measure time
-            timestamp("thresh");
+            timestamp("search");
             
-            if (debugMode == true) {
-                //show the threshold image after it's been "blurred"
-                //imshow("Final Threshold Image", thresholdImage);
-            } else {
-                //if not in debug mode, destroy the windows so we don't see them anymore
-                destroyWindow("Final Threshold Image");
+            destroyWindow("Frame");
+            
+            //measure time
+            timestamp("destroy");
+            
+            if (showOutput) {
+                //imshow("Zoomed Image", zoomedImage);
             }
             
             //measure time
             timestamp("show");
             
-            //if tracking enabled, search for movement in our thresholded image
-            if (trackingEnabled) {
-                
-                searchForMovement(thresholdImage, frame, zoomedImage);
-                
-                //measure time
-                timestamp("search");
-                
-                destroyWindow("Frame");
-                
-                //measure time
-                timestamp("destroy");
-                
-                if (showOutput) {
-                    //imshow("Zoomed Image", zoomedImage);
-                }
-                
-                //measure time
-                timestamp("show");
-                
-                outVideo.write(zoomedImage);
-                
-                //update file size / frame count
-                frameCount++;
-                
-                //measure time
-                timestamp("write");
-                
-            } else {
-                
-                destroyWindow("Zoomed Image");
-                destroyWindow("Filtered Zoomed Image");
-                
-                //show our captured frame
-                //imshow("Frame", frame);
-            }
+            outVideo.write(zoomedImage);
             
-            //check for max file size, if MAX_FRAMES is exceeded, open a new file.
-            if (frameCount > MAX_FRAMES) {
-                frameCount = 0;
-                outVideo.release();
-                fileCount++;
-                //add leading 0 to fileCount so later the snippets get sorted correctly (001, 002, 003, ...)
-                std::string fileCountString = std::to_string(fileCount);
-                fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
-                fileName = path + inFileName + " " + fileCountString + " processing.mov";
-                outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
-                if (!outVideo.isOpened()) {
-                    cout << "ERROR OPENING OUTPUT STREAM\n";
-                    getchar();
-                    return;
-                }
-                
-                
-            }
-            
-            //check to see if a button has been pressed.
-            //this 10ms delay is necessary for proper operation of this program
-            //if removed, frames will not have enough time to refresh and a blank
-            //image will appear.
-            switch (waitKey(1)) {
-                    
-                case 27: //'esc' key has been pressed, exit program.
-                    return;
-                    
-                case 116: //'t' has been pressed. this will toggle tracking
-                    trackingEnabled = !trackingEnabled;
-                    if (trackingEnabled == false)
-                        cout << "Tracking disabled." << endl;
-                    else
-                        cout << "Tracking enabled." << endl;
-                    break;
-                    
-                case 100: //'d' has been pressed. this will toggle debug mode
-                    debugMode = !debugMode;
-                    if (debugMode == false)
-                        cout << "Debug mode disabled." << endl;
-                    else
-                        cout << "Debug mode enabled." << endl;
-                    break;
-                    
-                case 112: //'p' has been pressed. this will pause/resume the code.
-                    pause = !pause;
-                    if (pause == true) {
-                        cout << "Code paused, press 'p' again to resume" << endl;
-                        while (pause == true) {
-                            //stay in this loop until
-                            switch (waitKey()) {
-                                    //a switch statement inside a switch statement? Mind blown.
-                                case 112:
-                                    //change pause back to false
-                                    pause = false;
-                                    cout << "Code Resumed" << endl;
-                                    break;
-                            }
-                        }
-                    }
-                    
-            }
+            //update file size / frame count
+            frameCount++;
             
             //measure time
-            timestamp("key");
-            if (!silent){
-                cout << "---------------------------------" << endl;
+            timestamp("write");
+            
+        } else {
+            
+            destroyWindow("Zoomed Image");
+            destroyWindow("Filtered Zoomed Image");
+            
+            //show our captured frame
+            //imshow("Frame", frame);
+        }
+        
+        //check for max file size, if MAX_FRAMES is exceeded, open a new file.
+        if (frameCount > MAX_FRAMES) {
+            frameCount = 0;
+            outVideo.release();
+            fileCount++;
+            //add leading 0 to fileCount so later the snippets get sorted correctly (001, 002, 003, ...)
+            std::string fileCountString = std::to_string(fileCount);
+            fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
+            fileName = path + inFileName + " " + fileCountString + " processing.mov";
+            outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
+            if (!outVideo.isOpened()) {
+                cout << "ERROR OPENING OUTPUT STREAM\n";
+                //getchar();
+                return;
             }
             
+            
         }
-        //release the capture before re-opening and looping again.
-        capture.release();
-    } while (loopVideo);
         
-    return;
+        //check to see if a button has been pressed.
+        //this 10ms delay is necessary for proper operation of this program
+        //if removed, frames will not have enough time to refresh and a blank
+        //image will appear.
+        switch (waitKey(1)) {
+                
+            case 27: //'esc' key has been pressed, exit program.
+                return;
+                
+            case 116: //'t' has been pressed. this will toggle tracking
+                trackingEnabled = !trackingEnabled;
+                if (trackingEnabled == false)
+                    cout << "Tracking disabled." << endl;
+                else
+                    cout << "Tracking enabled." << endl;
+                break;
+                
+            case 100: //'d' has been pressed. this will toggle debug mode
+                debugMode = !debugMode;
+                if (debugMode == false)
+                    cout << "Debug mode disabled." << endl;
+                else
+                    cout << "Debug mode enabled." << endl;
+                break;
+                
+            case 112: //'p' has been pressed. this will pause/resume the code.
+                pause = !pause;
+                if (pause == true) {
+                    cout << "Code paused, press 'p' again to resume" << endl;
+                    while (pause == true) {
+                        //stay in this loop until
+                        switch (waitKey()) {
+                                //a switch statement inside a switch statement? Mind blown.
+                            case 112:
+                                //change pause back to false
+                                pause = false;
+                                cout << "Code Resumed" << endl;
+                                break;
+                        }
+                    }
+                }
+                
+        }
+        
+        //measure time
+        timestamp("key");
+        if (!silent){
+            cout << "---------------------------------" << endl;
+        }
+        
+    }
     
+    capture.release();
+    outVideo.release();
+    return;
 }
 
 
