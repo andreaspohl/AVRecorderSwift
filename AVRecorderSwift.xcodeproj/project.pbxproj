@@ -77,11 +77,11 @@
 		E12751721C4A422F004BE799 = {
 			isa = PBXGroup;
 			children = (
-				E1F898F92309800000CD273C /* Resources */,
 				E17D277823049DAC006DD3A5 /* Info.plist */,
 				E127517D1C4A422F004BE799 /* AVRecorderSwift */,
 				E127517C1C4A422F004BE799 /* Products */,
 				F7992BA3C281587C4A93583D /* Pods */,
+				E1F898F92309800000CD273C /* Resources */,
 				6E47908515E455662CDBF335 /* Frameworks */,
 			);
 			sourceTree = "<group>";
