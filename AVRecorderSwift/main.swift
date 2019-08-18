@@ -35,7 +35,7 @@
 //TODO: make tests
 
 import Foundation
-import ORSSerial
+//import ORSSerial
 
 let usbButtonDeviceId = "usbmodem"
 let usbButtonDeviceBaudRate = "9600"
@@ -78,6 +78,11 @@ struct UserPrompter {
 }
 
 class StateMachine : NSObject, ORSSerialPortDelegate {
+    
+    func serialPortWasRemovedFromSystem(_ serialPort: ORSSerialPort) {
+        print("ERROR: SERIAL PORT WAS REMOVED FROM SYSTEM")
+    }
+    
     var currentState = ApplicationState.initializationState
     let standardInputFileHandle = FileHandle.standardInput
     let prompter = UserPrompter()
