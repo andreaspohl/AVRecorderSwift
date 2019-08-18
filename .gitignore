@@ -34,7 +34,6 @@ makeFile
 
 
 # and more stuff
-*.png
 *.mov
 *.build/
 build/*

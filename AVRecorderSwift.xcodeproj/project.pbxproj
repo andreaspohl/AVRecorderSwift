@@ -50,6 +50,7 @@
 		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
 		E1E3B6771DC4B3E900051771 /* Motion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Motion.hpp; sourceTree = "<group>"; };
 		E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProcessor.swift; sourceTree = "<group>"; };
+		E1F898FB2309806D00CD273C /* horseSampleShotMask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = horseSampleShotMask.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +77,7 @@
 		E12751721C4A422F004BE799 = {
 			isa = PBXGroup;
 			children = (
+				E1F898F92309800000CD273C /* Resources */,
 				E17D277823049DAC006DD3A5 /* Info.plist */,
 				E127517D1C4A422F004BE799 /* AVRecorderSwift */,
 				E127517C1C4A422F004BE799 /* Products */,
@@ -116,6 +118,14 @@
 				E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */,
 			);
 			name = Motion;
+			sourceTree = "<group>";
+		};
+		E1F898F92309800000CD273C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E1F898FB2309806D00CD273C /* horseSampleShotMask.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		F7992BA3C281587C4A93583D /* Pods */ = {
