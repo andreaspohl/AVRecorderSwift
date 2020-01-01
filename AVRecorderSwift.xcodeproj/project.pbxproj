@@ -15,6 +15,8 @@
 		E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E159CFB81DBCC073007D00B5 /* FileHandler.swift */; };
 		E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */; };
 		E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B6698C1DC271CD008B4734 /* Stitcher.swift */; };
+		E1DAEEB723BCFFF900C39136 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
+		E1DAEEB823BD000200C39136 /* MotionWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */; };
 		E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
 		E1E3B67A1DC4C4A800051771 /* VideoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */; };
 /* End PBXBuildFile section */
@@ -51,6 +53,7 @@
 		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AVRecorderSwift-Bridging-Header.h"; path = "AVRecorderSwift/AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MotionWrapper.mm; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
+		E1DAEEB623BCFDF900C39136 /* MotionTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotionTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
 		E1E3B6771DC4B3E900051771 /* Motion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Motion.hpp; sourceTree = "<group>"; };
 		E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProcessor.swift; sourceTree = "<group>"; };
@@ -125,6 +128,7 @@
 				E1B6698C1DC271CD008B4734 /* Stitcher.swift */,
 				E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */,
 				E11CCEE11DDCBAE3006F5F8A /* VideoMerger.swift */,
+				E1DAEEB623BCFDF900C39136 /* MotionTest-Bridging-Header.h */,
 				E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */,
 				E1E3B67B1DC4C7E900051771 /* Motion */,
 			);
@@ -275,7 +279,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1DAEEB823BD000200C39136 /* MotionWrapper.mm in Sources */,
 				E110135D23BCF05300FE08E9 /* MotionTest.swift in Sources */,
+				E1DAEEB723BCFFF900C39136 /* Motion.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,12 +320,14 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = MotionTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.pohl.MotionTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "AVRecorderSwift/MotionTest-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -342,10 +350,12 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = MotionTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.pohl.MotionTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AVRecorderSwift/MotionTest-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
