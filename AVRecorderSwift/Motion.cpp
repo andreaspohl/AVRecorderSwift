@@ -526,9 +526,6 @@ void Motion::processVideo(const char * pathName) {
             
         }
         
-        //check to see if a button has been pressed.
-        
-        //TODO: read key only when in debug mode / test mode
         if (test) {
             //this 1ms delay is necessary for proper operation of this program
             //if removed, frames will not have enough time to refresh and a blank
