@@ -54,6 +54,9 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 //output video size. For movies from Lumix, this is also the input video size.
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
+//factor for reducing the frames for speed
+const static double reduceFactor = 0.5;
+
 //max frames per file, estimated to not exceed the opencv 4GB file size limit
 //further limited to make short output movies, as VideoWriter slows down extremely with larger file size
 //250 frames at 25 fps --> 10 sec.
@@ -275,7 +278,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     Mat cutImage;
     int xx, yy;
-    xx = p.x - ( (int) zoomedWindow.width / 2 );
+    xx = ( (int) p.x / reduceFactor ) - ( (int) zoomedWindow.width / 2 );
     yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2); // fix vertical camera swing
     
     //limit against border of image
@@ -296,6 +299,10 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     timestamp("resize");
     
     previousCenter = p;
+}
+
+void reduce(Mat in, Mat &out) {
+    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
 }
 
 
@@ -328,6 +335,8 @@ void Motion::processVideo(const char * pathName) {
     
     //set up the matrices that we we'll need
     //the input frame
+    Mat origFrame;
+    //the reduced input frame$
     Mat frame;
     //their grayscale images (needed for comparing)
     Mat grayImage1, grayImage2;
@@ -340,10 +349,12 @@ void Motion::processVideo(const char * pathName) {
     
     //mask
     Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", IMREAD_GRAYSCALE);
+    
     if (!mask.data)                              // Check for invalid input
     {
         cout << "NO MASK IMAGE FOUND" << std::endl;
     } else {
+        reduce(mask, mask);
         threshold(mask, mask, SENSITIVITY_VALUE, 255, THRESH_BINARY);
     }
     
@@ -380,7 +391,11 @@ void Motion::processVideo(const char * pathName) {
     }
     
     //read frame
-    bool success = capture.read(frame);
+    bool success = capture.read(origFrame);
+    
+    //reduce frame to gain speed
+    reduce(origFrame, frame);
+    
     //convert frame to gray scale for frame differencing
     if (success) {
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
@@ -401,7 +416,8 @@ void Motion::processVideo(const char * pathName) {
         timestamp("swap");
         
         //read next frame
-        if (!capture.read(frame)) break;
+        if (!capture.read(origFrame)) break;
+        reduce(origFrame, frame);
         
         //measure time
         timestamp("read");
@@ -476,7 +492,7 @@ void Motion::processVideo(const char * pathName) {
         //if tracking enabled, search for movement in our thresholded image
         if (trackingEnabled) {
             
-            searchForMovement(thresholdImage, frame, zoomedImage);
+            searchForMovement(thresholdImage, origFrame, zoomedImage);
             
             //measure time
             timestamp("search");
