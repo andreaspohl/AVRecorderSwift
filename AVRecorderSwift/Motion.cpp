@@ -265,7 +265,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
     //calculate zoom factor
     double zoomFaktor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
-    zoomFaktor = 1.0 - (2.0 * (p.y - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
+    zoomFaktor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
     if (zoomFaktor > 1.0 ) {
         zoomFaktor = 1.0;
     } else if (zoomFaktor < 0.1) {
