@@ -186,12 +186,18 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     //draw some crosshairs around the object
     if (test) {
-        line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
-        line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
-        line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
-        line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
+        //draw center of gravity of image moment
+        Mat motionImage;
+        cvtColor(thresholdImage, motionImage, COLOR_GRAY2RGB);
+        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        imshow("Movement", motionImage);
     }
-     timestamp("line");
+    
+    
+    timestamp("line");
     
     
     
@@ -454,7 +460,7 @@ void Motion::processVideo(const char * pathName) {
         timestamp("thresh");
         
         if (debugMode == true) {
-            //show the difference image and threshold image
+            //show the difference image and the threshold image
             imshow("Difference Image", differenceImage);
             imshow("Threshold Image", thresholdImage);
         } else {
