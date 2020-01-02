@@ -184,24 +184,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int x = theObject[0];
     int y = theObject[1];
     
-    //draw some crosshairs around the object
-    if (test) {
-        //draw center of gravity of image moment
-        Mat motionImage;
-        cvtColor(thresholdImage, motionImage, COLOR_GRAY2RGB);
-        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
-        imshow("Movement", motionImage);
-    }
-    
-    
-    timestamp("line");
-    
-    
-    
-    //draw a variable circle, depending on mass of object
+    //calculate a variable circle, depending on mass of object
     //m > 10'000 --> r = 1
     //m = 0      --> r = 250
     int r = 0;
@@ -209,9 +192,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     if (r <= 0) {
         r = 1;
     }
-    
-    timestamp("radius");
-    
+
     //initialize at the beginning
     if (previousCenter.x == -1) {
         previousCenter.x = x;
@@ -249,12 +230,26 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     timestamp("filter");
     
-    //draw circle
+    //draw gravity center crosshair, and inertia filtered center with inverse mass circle
     if (test) {
-        circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
+        //draw center of gravity of image moment
+        Mat motionImage;
+        cvtColor(thresholdImage, motionImage, COLOR_GRAY2RGB);
+        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        
+        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        
+        circle(motionImage, p, r, Scalar(255, 255, 0));
+        
+        imshow("Movement", motionImage);
     }
-    //timestamp("circle");
-    
+        
     //make zoomed Image
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
     Size zoomedWindow = Size(640, 360);
