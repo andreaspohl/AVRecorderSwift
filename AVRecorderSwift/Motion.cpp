@@ -71,6 +71,9 @@ string intToString(int number) {
 //bool to print timestamps
 const static bool silent = 1;
 
+//for testing
+static bool test = false;
+
 inline void timestamp(string s) {
     
     // prints a timestamp to the console
@@ -83,6 +86,10 @@ inline void timestamp(string s) {
     }
 }
 
+void Motion::setTest() {
+    test = true;
+}
+
 //replace part in string
 std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace) {
@@ -93,6 +100,7 @@ std::string ReplaceString(std::string subject, const std::string& search,
     }
     return subject;
 }
+
 
 void inertiaFilter(Point &p) {
     
@@ -174,14 +182,14 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int y = theObject[1];
     
     //draw some crosshairs around the object
-    /*
-     line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
-     
+    if (test) {
+        line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
+        line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
+        line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
+        line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
+    }
      timestamp("line");
-     */
+    
     
     
     //draw a variable circle, depending on mass of object
@@ -233,7 +241,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     timestamp("filter");
     
     //draw circle
-    //circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
+    if (test) {
+        circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
+    }
     //timestamp("circle");
     
     //make zoomed Image
@@ -292,18 +302,18 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
 void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
     
-    //get main queue for displaying debug windows
-    //dispatch_queue_t main_q = dispatch_get_main_queue();
-    
-    
-    //some boolean variables for added functionality
-    //these can be toggled by pressing 'd', 't' or 'p'
+    //some boolean variables for testing
     bool debugMode = false;
     bool trackingEnabled = true;
     bool pause = false;
-    
-    //switch to show the output stream
     bool showOutput = false;
+    
+    if (test) {
+        debugMode = true;
+        trackingEnabled = true;
+        pause = false;
+        showOutput = true;
+    }
     
     
     //strip input file name of ´new´
@@ -394,8 +404,10 @@ void Motion::processVideo(const char * pathName) {
         //measure time
         timestamp("read");
         
-        //dispatch_async(main_q, ^{imshow("actualFrame", frame);} );
-        
+        if (debugMode) {
+            imshow("actualFrame", frame);
+        }
+    
         //convert frame to gray scale for frame differencing
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
         
@@ -425,8 +437,8 @@ void Motion::processVideo(const char * pathName) {
         
         if (debugMode == true) {
             //show the difference image and threshold image
-            //imshow("Difference Image", differenceImage);
-            //imshow("Threshold Image", thresholdImage);
+            imshow("Difference Image", differenceImage);
+            imshow("Threshold Image", thresholdImage);
         } else {
             //if not in debug mode, destroy the windows so we don't see them anymore
             destroyWindow("Difference Image");
@@ -450,7 +462,7 @@ void Motion::processVideo(const char * pathName) {
         
         if (debugMode == true) {
             //show the threshold image after it's been "blurred"
-            //imshow("Final Threshold Image", thresholdImage);
+            imshow("Final Threshold Image", thresholdImage);
         } else {
             //if not in debug mode, destroy the windows so we don't see them anymore
             destroyWindow("Final Threshold Image");
@@ -473,7 +485,7 @@ void Motion::processVideo(const char * pathName) {
             timestamp("destroy");
             
             if (showOutput) {
-                //imshow("Zoomed Image", zoomedImage);
+                imshow("Zoomed Image", zoomedImage);
             }
             
             //measure time
@@ -492,8 +504,6 @@ void Motion::processVideo(const char * pathName) {
             destroyWindow("Zoomed Image");
             destroyWindow("Filtered Zoomed Image");
             
-            //show our captured frame
-            //imshow("Frame", frame);
         }
         
         //check for max file size, if MAX_FRAMES is exceeded, open a new file.
@@ -515,9 +525,12 @@ void Motion::processVideo(const char * pathName) {
         }
         
         //check to see if a button has been pressed.
-        //this 10ms delay is necessary for proper operation of this program
+        //this 1ms delay is necessary for proper operation of this program
         //if removed, frames will not have enough time to refresh and a blank
         //image will appear.
+        
+        //TODO: read key only when in debug mode / test mode
+        
         switch (waitKey(1)) {
                 
             case 27: //'esc' key has been pressed, exit program.
@@ -555,8 +568,13 @@ void Motion::processVideo(const char * pathName) {
                         }
                     }
                 }
+                break;
+                
+            case 115: //'s' has been pressed. this will show the output frame
+                showOutput = !showOutput;
                 
         }
+        
         
         //measure time
         timestamp("key");

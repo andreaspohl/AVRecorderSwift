@@ -19,7 +19,7 @@ class MotionTest: XCTestCase {
     }
 
     func testMotion() {
-        MotionWrapper().processVideoWrapped("/nobpath")
+        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/2019-12-10 10-08-10 CAM0 new.mov")
     }
     
     func testExample() {
