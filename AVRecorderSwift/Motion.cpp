@@ -54,6 +54,8 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 //output video size. For movies from Lumix, this is also the input video size.
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
+//TODO: make max zoom window a const as well
+
 //factor for reducing the frames for speed
 const static double reduceFactor = 0.5;
 
@@ -169,6 +171,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //holds last tracking center
     static Point previousCenter(-1, -1);
     
+    //holds last zoomFactor
+    static double previousZoomFactor = 0;
+    
     //calculate moments
     mu = moments(thresholdImage, true);
     //and calculate mass center of the threshold image
@@ -184,11 +189,12 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int x = theObject[0];
     int y = theObject[1];
     
-    //calculate a variable circle, depending on mass of object
+    //calculate a variable circle, depending on mass of object, and zoomFactor
     //m > 10'000 --> r = 1
-    //m = 0      --> r = 250
+    //m = 0      --> r = maxR
+    const int maxR = (int) IN_VIDEO_SIZE.height / 8;
     int r = 0;
-    r = (int) ((10000 - mu.m00) / 10000 * 250);
+    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));
     if (r <= 0) {
         r = 1;
     }
@@ -249,8 +255,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
         
         imshow("Movement", motionImage);
     }
-        
-    //make zoomed Image
+
+    //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
     Size zoomedWindow = Size(640, 360);
     Size maxZoomedWindow = zoomedWindow;
@@ -259,16 +265,20 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //if p.y is above cameraVerticalPosition --> maximal zoom
     //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
     //calculate zoom factor
-    double zoomFaktor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
-    zoomFaktor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
-    if (zoomFaktor > 1.0 ) {
-        zoomFaktor = 1.0;
-    } else if (zoomFaktor < 0.1) {
-        zoomFaktor = 0.1;
+    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
+    zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
+    if (zoomFactor > 1.0 ) {
+        zoomFactor = 1.0;
+    } else if (zoomFactor < 0.1) {
+        zoomFactor = 0.1;
     }
     
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFaktor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFaktor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
+    //store for later usage
+    previousZoomFactor = zoomFactor;
+    
+    //make zoomed Image
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
