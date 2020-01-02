@@ -322,9 +322,11 @@ void Motion::processVideo(const char * pathName) {
     string path = sPathName.substr(0, sPathName.find_last_of("/") + 1 );
     string inFileNameNew = videoFileName;
     string inFileName = inFileNameNew.substr(0, inFileNameNew.find_last_of(" ")); //get the filename without ´new´
+    
+    
     //motionTracking section
     
-    //set up the matrices that we will need
+    //set up the matrices that we we'll need
     //the input frame
     Mat frame;
     //their grayscale images (needed for comparing)
@@ -525,54 +527,13 @@ void Motion::processVideo(const char * pathName) {
         }
         
         //check to see if a button has been pressed.
-        //this 1ms delay is necessary for proper operation of this program
-        //if removed, frames will not have enough time to refresh and a blank
-        //image will appear.
         
         //TODO: read key only when in debug mode / test mode
-        
-        switch (waitKey(1)) {
-                
-            case 27: //'esc' key has been pressed, exit program.
-                return;
-                
-            case 116: //'t' has been pressed. this will toggle tracking
-                trackingEnabled = !trackingEnabled;
-                if (trackingEnabled == false)
-                    cout << "Tracking disabled." << endl;
-                else
-                    cout << "Tracking enabled." << endl;
-                break;
-                
-            case 100: //'d' has been pressed. this will toggle debug mode
-                debugMode = !debugMode;
-                if (debugMode == false)
-                    cout << "Debug mode disabled." << endl;
-                else
-                    cout << "Debug mode enabled." << endl;
-                break;
-                
-            case 112: //'p' has been pressed. this will pause/resume the code.
-                pause = !pause;
-                if (pause == true) {
-                    cout << "Code paused, press 'p' again to resume" << endl;
-                    while (pause == true) {
-                        //stay in this loop until
-                        switch (waitKey()) {
-                                //a switch statement inside a switch statement? Mind blown.
-                            case 112:
-                                //change pause back to false
-                                pause = false;
-                                cout << "Code Resumed" << endl;
-                                break;
-                        }
-                    }
-                }
-                break;
-                
-            case 115: //'s' has been pressed. this will show the output frame
-                showOutput = !showOutput;
-                
+        if (test) {
+            //this 1ms delay is necessary for proper operation of this program
+            //if removed, frames will not have enough time to refresh and a blank
+            //image will appear.
+            waitKey(1);
         }
         
         
