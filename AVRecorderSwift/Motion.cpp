@@ -162,7 +162,7 @@ void inertiaFilter(Point &p) {
     p.y = (int) state.at<float>(1, 0);
 }
 
-void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
+void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
     
     //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
     //to take the values passed into the function and manipulate them, rather than just working with a copy.
@@ -189,12 +189,17 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int x = theObject[0];
     int y = theObject[1];
     
+    //calculate the bounding rectangle for all non zero points
+    vector<Point> points;
+    findNonZero(thresholdImage, points);
+    objectBoundingRectangle = boundingRect(points);
+    
     //calculate a variable circle, depending on mass of object, and zoomFactor
     //m > 10'000 --> r = 1
     //m = 0      --> r = maxR
-    const int maxR = (int) IN_VIDEO_SIZE.height / 8;
+    const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
     int r = 0;
-    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));
+    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
     if (r <= 0) {
         r = 1;
     }
@@ -236,26 +241,6 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     timestamp("filter");
     
-    //draw gravity center crosshair, and inertia filtered center with inverse mass circle
-    if (test) {
-        //draw center of gravity of image moment
-        Mat motionImage;
-        cvtColor(thresholdImage, motionImage, COLOR_GRAY2RGB);
-        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
-        
-        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
-        
-        circle(motionImage, p, r, Scalar(255, 255, 0));
-        
-        imshow("Movement", motionImage);
-    }
-
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
     Size zoomedWindow = Size(640, 360);
@@ -310,6 +295,40 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     timestamp("resize");
     
     previousCenter = p;
+
+    //draw debug information
+    if (test) {
+        //draw center of gravity of image moment
+        Mat motionImage;
+        //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
+        redFrame.copyTo(motionImage);
+        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        
+        //draw center of camera (after inertia filtering)
+        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        
+        //draw inverse mass circle
+        circle(motionImage, p, r, Scalar(255, 255, 0));
+        
+        //draw bounding rectangle
+        rectangle(motionImage, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
+        
+        //draw zoom rectangle
+        Point tl(xx, yy);
+        Point br(xx + zoomedWindow.width, yy + zoomedWindow.height);
+        tl = tl * reduceFactor;
+        br = br * reduceFactor;
+        rectangle(motionImage, tl, br, Scalar(255, 0, 0), 3);
+        
+        imshow("Movement", motionImage);
+    }
+    
 }
 
 void reduce(Mat in, Mat &out) {
@@ -503,7 +522,7 @@ void Motion::processVideo(const char * pathName) {
         //if tracking enabled, search for movement in our thresholded image
         if (trackingEnabled) {
             
-            searchForMovement(thresholdImage, origFrame, zoomedImage);
+            searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
             
             //measure time
             timestamp("search");
