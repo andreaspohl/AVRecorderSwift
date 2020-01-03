@@ -54,6 +54,11 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 //output video size. For movies from Lumix, this is also the input video size.
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
+//TODO: make max zoom window a const as well
+
+//factor for reducing the frames for speed
+const static double reduceFactor = 0.5;
+
 //max frames per file, estimated to not exceed the opencv 4GB file size limit
 //further limited to make short output movies, as VideoWriter slows down extremely with larger file size
 //250 frames at 25 fps --> 10 sec.
@@ -71,6 +76,9 @@ string intToString(int number) {
 //bool to print timestamps
 const static bool silent = 1;
 
+//for testing
+static bool test = false;
+
 inline void timestamp(string s) {
     
     // prints a timestamp to the console
@@ -83,6 +91,10 @@ inline void timestamp(string s) {
     }
 }
 
+void Motion::setTest() {
+    test = true;
+}
+
 //replace part in string
 std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace) {
@@ -93,6 +105,7 @@ std::string ReplaceString(std::string subject, const std::string& search,
     }
     return subject;
 }
+
 
 void inertiaFilter(Point &p) {
     
@@ -149,7 +162,7 @@ void inertiaFilter(Point &p) {
     p.y = (int) state.at<float>(1, 0);
 }
 
-void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
+void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
     
     //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
     //to take the values passed into the function and manipulate them, rather than just working with a copy.
@@ -157,6 +170,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     Moments mu;
     //holds last tracking center
     static Point previousCenter(-1, -1);
+    
+    //holds last zoomFactor
+    static double previousZoomFactor = 0;
     
     //calculate moments
     mu = moments(thresholdImage, true);
@@ -173,27 +189,20 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     int x = theObject[0];
     int y = theObject[1];
     
-    //draw some crosshairs around the object
-    /*
-     line(cameraFeed, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 1);
-     line(cameraFeed, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 1);
-     
-     timestamp("line");
-     */
+    //calculate the bounding rectangle for all non zero points
+    vector<Point> points;
+    findNonZero(thresholdImage, points);
+    objectBoundingRectangle = boundingRect(points);
     
-    
-    //draw a variable circle, depending on mass of object
+    //calculate a variable circle, depending on mass of object, and zoomFactor
     //m > 10'000 --> r = 1
-    //m = 0      --> r = 250
+    //m = 0      --> r = maxR
+    const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
     int r = 0;
-    r = (int) ((10000 - mu.m00) / 10000 * 250);
+    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
     if (r <= 0) {
         r = 1;
     }
-    
-    timestamp("radius");
     
     //initialize at the beginning
     if (previousCenter.x == -1) {
@@ -232,12 +241,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     timestamp("filter");
     
-    //draw circle
-    //circle(cameraFeed, p, r, Scalar(255, 255, 0), 1);
-    //timestamp("circle");
-    
-    //make zoomed Image
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
+    //calculate zoom factor
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; // + 90?
     Size zoomedWindow = Size(640, 360);
     Size maxZoomedWindow = zoomedWindow;
     
@@ -245,16 +250,20 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     //if p.y is above cameraVerticalPosition --> maximal zoom
     //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
     //calculate zoom factor
-    double zoomFaktor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
-    zoomFaktor = 1.0 - (2.0 * (p.y - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
-    if (zoomFaktor > 1.0 ) {
-        zoomFaktor = 1.0;
-    } else if (zoomFaktor < 0.1) {
-        zoomFaktor = 0.1;
+    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
+    zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
+    if (zoomFactor > 1.0 ) {
+        zoomFactor = 1.0;
+    } else if (zoomFactor < 0.1) {
+        zoomFactor = 0.1;
     }
     
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFaktor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFaktor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
+    //store for later usage
+    previousZoomFactor = zoomFactor;
+    
+    //make zoomed Image
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
@@ -265,8 +274,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     
     Mat cutImage;
     int xx, yy;
-    xx = p.x - ( (int) zoomedWindow.width / 2 );
-    yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2); // fix vertical camera swing
+    xx = ( (int) p.x / reduceFactor ) - ( (int) zoomedWindow.width / 2 );
+    yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2 ); // fix vertical camera swing
     
     //limit against border of image
     if (xx < 0) xx = 0;
@@ -286,24 +295,62 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage) {
     timestamp("resize");
     
     previousCenter = p;
+    
+    //draw debug information
+    if (test) {
+        //draw center of gravity of image moment
+        Mat motionImage;
+        //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
+        redFrame.copyTo(motionImage);
+        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
+        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        
+        //draw center of camera (after inertia filtering)
+        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
+        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        
+        //draw inverse mass circle
+        circle(motionImage, p, r, Scalar(255, 255, 0));
+        
+        //draw bounding rectangle
+        rectangle(motionImage, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
+        
+        //draw zoom rectangle
+        Point tl(xx, yy);
+        Point br(xx + zoomedWindow.width, yy + zoomedWindow.height);
+        tl = tl * reduceFactor;
+        br = br * reduceFactor;
+        rectangle(motionImage, tl, br, Scalar(255, 0, 0), 3);
+        
+        imshow("Movement", motionImage);
+    }
+    
+}
+
+void reduce(Mat in, Mat &out) {
+    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
 }
 
 
 void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
     
-    //get main queue for displaying debug windows
-    //dispatch_queue_t main_q = dispatch_get_main_queue();
-    
-    
-    //some boolean variables for added functionality
-    //these can be toggled by pressing 'd', 't' or 'p'
-    bool debugMode = false;
-    bool trackingEnabled = true;
-    bool pause = false;
-    
-    //switch to show the output stream
+    //some boolean variables for testing
+    bool showDifference = false;
+    bool showActualFrame = false;
     bool showOutput = false;
+    bool showMask = false;
+    
+    if (test) {
+        showDifference = false;
+        showActualFrame = false;
+        showOutput = true;
+        showMask = false;
+    }
     
     
     //strip input file name of ´new´
@@ -312,10 +359,14 @@ void Motion::processVideo(const char * pathName) {
     string path = sPathName.substr(0, sPathName.find_last_of("/") + 1 );
     string inFileNameNew = videoFileName;
     string inFileName = inFileNameNew.substr(0, inFileNameNew.find_last_of(" ")); //get the filename without ´new´
+    
+    
     //motionTracking section
     
-    //set up the matrices that we will need
+    //set up the matrices that we we'll need
     //the input frame
+    Mat origFrame;
+    //the reduced input frame$
     Mat frame;
     //their grayscale images (needed for comparing)
     Mat grayImage1, grayImage2;
@@ -328,10 +379,12 @@ void Motion::processVideo(const char * pathName) {
     
     //mask
     Mat mask = imread(path + "../0_mask/horseSampleShotMask.png", IMREAD_GRAYSCALE);
+    
     if (!mask.data)                              // Check for invalid input
     {
         cout << "NO MASK IMAGE FOUND" << std::endl;
     } else {
+        reduce(mask, mask);
         threshold(mask, mask, SENSITIVITY_VALUE, 255, THRESH_BINARY);
     }
     
@@ -368,133 +421,76 @@ void Motion::processVideo(const char * pathName) {
     }
     
     //read frame
-    bool success = capture.read(frame);
+    bool success = capture.read(origFrame);
+    
+    //reduce frame to gain speed
+    reduce(origFrame, frame);
+    
     //convert frame to gray scale for frame differencing
     if (success) {
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
     }
     
-    //just show so that there is something
-    //imshow("StartFrame", frame);
-    //imshow("Mask", mask);
+    if (showMask) {
+        imshow("Mask", mask);
+    }
     
     while (true) {
-        
-        timestamp("init");
         
         //set first grayImage to the last one read from camera
         swap(grayImage1, grayImage2);
         
-        //measure time
-        timestamp("swap");
-        
         //read next frame
-        if (!capture.read(frame)) break;
+        if (!capture.read(origFrame)) break;
+        reduce(origFrame, frame);
         
-        //measure time
-        timestamp("read");
-        
-        //dispatch_async(main_q, ^{imshow("actualFrame", frame);} );
+        if (showActualFrame) {
+            imshow("actualFrame", frame);
+        }
         
         //convert frame to gray scale for frame differencing
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
         
-        //measure time
-        timestamp("cvtColor");
-        
         //perform frame differencing with the sequential images. This will output an "intensity image"
         //do not confuse this with a threshold image, we will need to perform thresholding afterwards.
         absdiff(grayImage1, grayImage2, differenceImage);
-        
-        //measure time
-        timestamp("absdiff");
         
         //now mask the result to filter only the relevant regions of the picture
         Mat temp;
         differenceImage.copyTo(temp, mask);
         temp.copyTo(differenceImage);
         
-        //measure time
-        timestamp("copy");
-        
         //threshold intensity image at a given sensitivity value
         threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        //measure time
-        timestamp("thresh");
-        
-        if (debugMode == true) {
-            //show the difference image and threshold image
-            //imshow("Difference Image", differenceImage);
-            //imshow("Threshold Image", thresholdImage);
-        } else {
-            //if not in debug mode, destroy the windows so we don't see them anymore
-            destroyWindow("Difference Image");
-            destroyWindow("Threshold Image");
+        if (showDifference) {
+            //show the difference image and the threshold image
+            imshow("Difference Image", differenceImage);
+            imshow("Threshold Image", thresholdImage);
         }
-        
-        //measure time
-        timestamp("debug");
         
         //blur the image to get rid of the noise. This will output an intensity image
         blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
         
-        //measure time
-        timestamp("blur");
-        
         //threshold again to obtain binary image from blur output
         threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        //measure time
-        timestamp("thresh");
-        
-        if (debugMode == true) {
+        if (showDifference) {
             //show the threshold image after it's been "blurred"
-            //imshow("Final Threshold Image", thresholdImage);
-        } else {
-            //if not in debug mode, destroy the windows so we don't see them anymore
-            destroyWindow("Final Threshold Image");
+            imshow("Final Threshold Image", thresholdImage);
         }
         
-        //measure time
-        timestamp("show");
+        //search for movement in our thresholded image
+        searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
         
-        //if tracking enabled, search for movement in our thresholded image
-        if (trackingEnabled) {
-            
-            searchForMovement(thresholdImage, frame, zoomedImage);
-            
-            //measure time
-            timestamp("search");
-            
-            destroyWindow("Frame");
-            
-            //measure time
-            timestamp("destroy");
-            
-            if (showOutput) {
-                //imshow("Zoomed Image", zoomedImage);
-            }
-            
-            //measure time
-            timestamp("show");
-            
-            outVideo.write(zoomedImage);
-            
-            //update file size / frame count
-            frameCount++;
-            
-            //measure time
-            timestamp("write");
-            
-        } else {
-            
-            destroyWindow("Zoomed Image");
-            destroyWindow("Filtered Zoomed Image");
-            
-            //show our captured frame
-            //imshow("Frame", frame);
+        if (showOutput) {
+            imshow("Zoomed Image", zoomedImage);
         }
+        
+        outVideo.write(zoomedImage);
+        
+        //update file size / frame count
+        frameCount++;
         
         //check for max file size, if MAX_FRAMES is exceeded, open a new file.
         if (frameCount > MAX_FRAMES) {
@@ -514,56 +510,12 @@ void Motion::processVideo(const char * pathName) {
             
         }
         
-        //check to see if a button has been pressed.
-        //this 10ms delay is necessary for proper operation of this program
-        //if removed, frames will not have enough time to refresh and a blank
-        //image will appear.
-        switch (waitKey(1)) {
-                
-            case 27: //'esc' key has been pressed, exit program.
-                return;
-                
-            case 116: //'t' has been pressed. this will toggle tracking
-                trackingEnabled = !trackingEnabled;
-                if (trackingEnabled == false)
-                    cout << "Tracking disabled." << endl;
-                else
-                    cout << "Tracking enabled." << endl;
-                break;
-                
-            case 100: //'d' has been pressed. this will toggle debug mode
-                debugMode = !debugMode;
-                if (debugMode == false)
-                    cout << "Debug mode disabled." << endl;
-                else
-                    cout << "Debug mode enabled." << endl;
-                break;
-                
-            case 112: //'p' has been pressed. this will pause/resume the code.
-                pause = !pause;
-                if (pause == true) {
-                    cout << "Code paused, press 'p' again to resume" << endl;
-                    while (pause == true) {
-                        //stay in this loop until
-                        switch (waitKey()) {
-                                //a switch statement inside a switch statement? Mind blown.
-                            case 112:
-                                //change pause back to false
-                                pause = false;
-                                cout << "Code Resumed" << endl;
-                                break;
-                        }
-                    }
-                }
-                
+        if (test) {
+            //this 1ms delay is necessary for proper operation of this program
+            //if removed, frames will not have enough time to refresh and a blank
+            //image will appear.
+            waitKey(1);
         }
-        
-        //measure time
-        timestamp("key");
-        if (!silent){
-            cout << "---------------------------------" << endl;
-        }
-        
     }
     
     capture.release();

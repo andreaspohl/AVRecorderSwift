@@ -11,4 +11,5 @@
 #import <Foundation/Foundation.h>
 @interface MotionWrapper : NSObject
 - (void)processVideoWrapped:(NSString *)videoFileName;
+- (void)processVideoDebug:(NSString *)videoFileName;
 @end

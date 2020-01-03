@@ -13,4 +13,9 @@
     Motion motion;
     motion.processVideo([videoFileName cStringUsingEncoding:NSUTF8StringEncoding]);
 }
+- (void)processVideoDebug:(NSString *)videoFileName {
+    Motion motion;
+    motion.setTest();
+    motion.processVideo([videoFileName cStringUsingEncoding:NSUTF8StringEncoding]);
+}
 @end

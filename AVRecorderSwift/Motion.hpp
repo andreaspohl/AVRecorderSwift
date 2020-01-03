@@ -14,6 +14,7 @@
 class Motion {
 public:
     void processVideo(const char * videoFileName);
+    void setTest();
 };
 
 #endif /* Motion_hpp */
