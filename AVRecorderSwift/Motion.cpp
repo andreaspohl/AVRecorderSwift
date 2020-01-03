@@ -516,7 +516,7 @@ void Motion::processVideo(const char * pathName) {
             //image will appear.
             waitKey(1);
         }
-}
+    }
     
     capture.release();
     outVideo.release();
