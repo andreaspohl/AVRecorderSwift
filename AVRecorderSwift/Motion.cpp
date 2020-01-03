@@ -203,7 +203,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     if (r <= 0) {
         r = 1;
     }
-
+    
     //initialize at the beginning
     if (previousCenter.x == -1) {
         previousCenter.x = x;
@@ -242,7 +242,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     timestamp("filter");
     
     //calculate zoom factor
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2 + 90;
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; // + 90?
     Size zoomedWindow = Size(640, 360);
     Size maxZoomedWindow = zoomedWindow;
     
@@ -275,7 +275,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     Mat cutImage;
     int xx, yy;
     xx = ( (int) p.x / reduceFactor ) - ( (int) zoomedWindow.width / 2 );
-    yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2); // fix vertical camera swing
+    yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2 ); // fix vertical camera swing
     
     //limit against border of image
     if (xx < 0) xx = 0;
@@ -295,7 +295,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     timestamp("resize");
     
     previousCenter = p;
-
+    
     //draw debug information
     if (test) {
         //draw center of gravity of image moment
@@ -340,16 +340,16 @@ void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
     
     //some boolean variables for testing
-    bool debugMode = false;
-    bool trackingEnabled = true;
-    bool pause = false;
+    bool showDifference = false;
+    bool showActualFrame = false;
     bool showOutput = false;
+    bool showMask = false;
     
     if (test) {
-        debugMode = true;
-        trackingEnabled = true;
-        pause = false;
+        showDifference = true;
+        showActualFrame = true;
         showOutput = true;
+        showMask = true;
     }
     
     
@@ -431,128 +431,66 @@ void Motion::processVideo(const char * pathName) {
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
     }
     
-    //just show so that there is something
-    //imshow("StartFrame", frame);
-    //imshow("Mask", mask);
+    if (showMask) {
+        imshow("Mask", mask);
+    }
     
     while (true) {
         
-        timestamp("init");
-        
         //set first grayImage to the last one read from camera
         swap(grayImage1, grayImage2);
-        
-        //measure time
-        timestamp("swap");
         
         //read next frame
         if (!capture.read(origFrame)) break;
         reduce(origFrame, frame);
         
-        //measure time
-        timestamp("read");
-        
-        if (debugMode) {
+        if (showActualFrame) {
             imshow("actualFrame", frame);
         }
-    
+        
         //convert frame to gray scale for frame differencing
         cvtColor(frame, grayImage2, COLOR_BGR2GRAY);
-        
-        //measure time
-        timestamp("cvtColor");
         
         //perform frame differencing with the sequential images. This will output an "intensity image"
         //do not confuse this with a threshold image, we will need to perform thresholding afterwards.
         absdiff(grayImage1, grayImage2, differenceImage);
-        
-        //measure time
-        timestamp("absdiff");
         
         //now mask the result to filter only the relevant regions of the picture
         Mat temp;
         differenceImage.copyTo(temp, mask);
         temp.copyTo(differenceImage);
         
-        //measure time
-        timestamp("copy");
-        
         //threshold intensity image at a given sensitivity value
         threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        //measure time
-        timestamp("thresh");
-        
-        if (debugMode == true) {
+        if (showDifference) {
             //show the difference image and the threshold image
             imshow("Difference Image", differenceImage);
             imshow("Threshold Image", thresholdImage);
-        } else {
-            //if not in debug mode, destroy the windows so we don't see them anymore
-            destroyWindow("Difference Image");
-            destroyWindow("Threshold Image");
         }
-        
-        //measure time
-        timestamp("debug");
         
         //blur the image to get rid of the noise. This will output an intensity image
         blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
         
-        //measure time
-        timestamp("blur");
-        
         //threshold again to obtain binary image from blur output
         threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        //measure time
-        timestamp("thresh");
-        
-        if (debugMode == true) {
+        if (showDifference) {
             //show the threshold image after it's been "blurred"
             imshow("Final Threshold Image", thresholdImage);
-        } else {
-            //if not in debug mode, destroy the windows so we don't see them anymore
-            destroyWindow("Final Threshold Image");
         }
         
-        //measure time
-        timestamp("show");
+        //search for movement in our thresholded image
+        searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
         
-        //if tracking enabled, search for movement in our thresholded image
-        if (trackingEnabled) {
-            
-            searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
-            
-            //measure time
-            timestamp("search");
-            
-            destroyWindow("Frame");
-            
-            //measure time
-            timestamp("destroy");
-            
-            if (showOutput) {
-                imshow("Zoomed Image", zoomedImage);
-            }
-            
-            //measure time
-            timestamp("show");
-            
-            outVideo.write(zoomedImage);
-            
-            //update file size / frame count
-            frameCount++;
-            
-            //measure time
-            timestamp("write");
-            
-        } else {
-            
-            destroyWindow("Zoomed Image");
-            destroyWindow("Filtered Zoomed Image");
-            
+        if (showOutput) {
+            imshow("Zoomed Image", zoomedImage);
         }
+        
+        outVideo.write(zoomedImage);
+        
+        //update file size / frame count
+        frameCount++;
         
         //check for max file size, if MAX_FRAMES is exceeded, open a new file.
         if (frameCount > MAX_FRAMES) {
@@ -578,15 +516,7 @@ void Motion::processVideo(const char * pathName) {
             //image will appear.
             waitKey(1);
         }
-        
-        
-        //measure time
-        timestamp("key");
-        if (!silent){
-            cout << "---------------------------------" << endl;
-        }
-        
-    }
+}
     
     capture.release();
     outVideo.release();
