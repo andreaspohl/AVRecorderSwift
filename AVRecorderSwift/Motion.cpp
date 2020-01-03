@@ -346,10 +346,10 @@ void Motion::processVideo(const char * pathName) {
     bool showMask = false;
     
     if (test) {
-        showDifference = true;
-        showActualFrame = true;
+        showDifference = false;
+        showActualFrame = false;
         showOutput = true;
-        showMask = true;
+        showMask = false;
     }
     
     
