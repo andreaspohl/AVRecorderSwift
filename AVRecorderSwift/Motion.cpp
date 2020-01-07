@@ -54,7 +54,9 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 //output video size. For movies from Lumix, this is also the input video size.
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
-//TODO: make max zoom window a const as well
+//max zoom window
+Size MAX_ZOOMED_WINDOW = Size(640, 360);
+
 
 //factor for reducing the frames for speed
 const static double reduceFactor = 0.5;
@@ -243,14 +245,13 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; // + 90?
-    Size zoomedWindow = Size(640, 360);
-    Size maxZoomedWindow = zoomedWindow;
+    Size zoomedWindow = MAX_ZOOMED_WINDOW;
     
     //calculate zoom window size
     //if p.y is above cameraVerticalPosition --> maximal zoom
     //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
     //calculate zoom factor
-    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
+    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 1 (max zoom)
     zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
     if (zoomFactor > 1.0 ) {
         zoomFactor = 1.0;
@@ -262,8 +263,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     previousZoomFactor = zoomFactor;
     
     //make zoomed Image
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width));
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height));
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
