@@ -21,6 +21,7 @@
 //0.3 trying to record and store to file
 
 #include "Motion.hpp"
+#include "Filter.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -164,6 +165,31 @@ void inertiaFilter(Point &p) {
     p.y = (int) state.at<float>(1, 0);
 }
 
+double calcZoomFactor(Rect boundingRectangle) {
+    double zoomFactor;
+
+    static Filter leftBorderFilter(0);
+    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor);
+    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor);
+    
+    //unfiltered borders, yet
+    int leftBorder = leftBorderFilter.update(boundingRectangle.x);
+    int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width);
+    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height);
+    
+    //calculate zoom factor, only from width yet
+    double tempWidth = (rightBorder - leftBorder) / reduceFactor;
+    zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width);
+    
+    if (zoomFactor > 1.0) {
+        zoomFactor = 1.0;
+    } else if (zoomFactor < 0.0) {
+        zoomFactor = 0.0;
+    }
+    
+    return zoomFactor;
+}
+
 void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
     
     //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
@@ -195,6 +221,11 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     vector<Point> points;
     findNonZero(thresholdImage, points);
     objectBoundingRectangle = boundingRect(points);
+    
+    //new simple calculation of camera center
+    //TODO: replace old calculation above
+    x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
+    y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
     
     //calculate a variable circle, depending on mass of object, and zoomFactor
     //m > 10'000 --> r = 1
@@ -244,21 +275,25 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     timestamp("filter");
     
     //calculate zoom factor
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; 
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
-    
-    //calculate zoom window size
-    //if p.y is above cameraVerticalPosition --> maximal zoom
-    //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
-    //calculate zoom factor
     double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 1 (max zoom)
-    zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
-    if (zoomFactor > 1.0 ) {
-        zoomFactor = 1.0;
-    } else if (zoomFactor < 0.0) {
-        zoomFactor = 0.0;
+
+    bool newZoomAlgorithm = true;
+    if (newZoomAlgorithm) {
+        zoomFactor = calcZoomFactor(objectBoundingRectangle);
+    } else {
+        //calculate zoom window size
+        //if p.y is above cameraVerticalPosition --> maximal zoom
+        //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
+        //calculate zoom factor
+        zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
+        if (zoomFactor > 1.0 ) {
+            zoomFactor = 1.0;
+        } else if (zoomFactor < 0.0) {
+            zoomFactor = 0.0;
+        }
     }
-    
     //store for later usage
     previousZoomFactor = zoomFactor;
     
