@@ -244,7 +244,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     timestamp("filter");
     
     //calculate zoom factor
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; // + 90?
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; 
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
     
     //calculate zoom window size
@@ -255,8 +255,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
     if (zoomFactor > 1.0 ) {
         zoomFactor = 1.0;
-    } else if (zoomFactor < 0.1) {
-        zoomFactor = 0.1;
+    } else if (zoomFactor < 0.0) {
+        zoomFactor = 0.0;
     }
     
     //store for later usage
@@ -282,8 +282,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     if (xx < 0) xx = 0;
     if (yy < 0) yy = 0;
     
-    int maxX = IN_VIDEO_SIZE.width - zoomedWindow.width - 1;
-    int maxY = IN_VIDEO_SIZE.height - zoomedWindow.height - 1;
+    int maxX = IN_VIDEO_SIZE.width - zoomedWindow.width;
+    int maxY = IN_VIDEO_SIZE.height - zoomedWindow.height;
     
     if (xx > maxX) xx = maxX;
     if (yy > maxY) yy = maxY;
