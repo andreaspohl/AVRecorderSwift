@@ -14,6 +14,7 @@ using namespace std;
 
 const double MASS = 10.0;
 const double FRICTION = 1.0;
+const double MAX_V = 10;
 
 Filter::Filter(int in) {
     initial = in;
@@ -25,6 +26,11 @@ Filter::Filter(int in) {
 int Filter::update(int in) {
     ax = (in - x) / MASS;
     vx = vx + ax/2 - (vx * FRICTION);
+    if (vx > MAX_V) {
+        vx = MAX_V;
+    } else if (vx < -MAX_V) {
+        vx = -MAX_V;
+    }
     x = x + vx;
     return (int) x;
 }

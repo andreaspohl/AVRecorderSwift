@@ -181,6 +181,9 @@ double calcZoomFactor(Rect boundingRectangle) {
     double tempWidth = (rightBorder - leftBorder) / reduceFactor;
     zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width);
     
+    //make zoom image a little bit bigger than the bounding Rectangle
+    zoomFactor = zoomFactor * 0.95;
+    
     if (zoomFactor > 1.0) {
         zoomFactor = 1.0;
     } else if (zoomFactor < 0.0) {
