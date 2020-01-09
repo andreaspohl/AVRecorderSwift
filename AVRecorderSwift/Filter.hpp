@@ -12,14 +12,21 @@
 #include <stdio.h>
 
 class Filter {
+    
+public:
+    enum class BorderType {
+        LEFT,
+        RIGHT,
+        BOTTOM
+    };
+    Filter(int x, BorderType border);
+    int update(int x);
+    
 private:
-    double initial;
     double x;
     double vx;
     double ax;
-
-public:
-    Filter(int x);
-    int update(int x);
+    BorderType borderType;
+    
 };
 #endif /* Filter_hpp */

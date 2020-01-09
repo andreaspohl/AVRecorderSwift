@@ -167,10 +167,10 @@ void inertiaFilter(Point &p) {
 
 //calculate zoom window from bounding rectangle
 void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
-
-    static Filter leftBorderFilter(0);
-    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor);
-    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor);
+    
+    static Filter leftBorderFilter(0, Filter::BorderType::LEFT);
+    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::RIGHT);
+    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::BOTTOM);
     
     //unfiltered borders, yet
     int leftBorder = leftBorderFilter.update(boundingRectangle.x);
