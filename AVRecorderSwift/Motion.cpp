@@ -165,8 +165,8 @@ void inertiaFilter(Point &p) {
     p.y = (int) state.at<float>(1, 0);
 }
 
-double calcZoomFactor(Rect boundingRectangle) {
-    double zoomFactor;
+//calculate zoom window from bounding rectangle
+void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
 
     static Filter leftBorderFilter(0);
     static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor);
@@ -190,7 +190,7 @@ double calcZoomFactor(Rect boundingRectangle) {
         zoomFactor = 0.0;
     }
     
-    return zoomFactor;
+    zoomXPosition = (int) leftBorder + (rightBorder - leftBorder) / 2;
 }
 
 void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
@@ -284,7 +284,7 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
 
     bool newZoomAlgorithm = true;
     if (newZoomAlgorithm) {
-        zoomFactor = calcZoomFactor(objectBoundingRectangle);
+        calcZoom(objectBoundingRectangle, p.x, zoomFactor); //TODO: p.x overrides calculation above, code remove
     } else {
         //calculate zoom window size
         //if p.y is above cameraVerticalPosition --> maximal zoom
