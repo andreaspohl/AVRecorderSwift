@@ -12,9 +12,10 @@
 
 using namespace std;
 
+const double SPRING = 2; // translates pixel distance into force
 const double MASS = 10.0;
-const double FRICTION = 1.0;
-const double MAX_V = 10;
+const double FRICTION = 0.8;
+const double MAX_V = 20;
 const double MAX_MINUS_V = 2; //value can grow with MAX_V, but shrink only with MAX_MINUS_V
 
 Filter::Filter(int in, enum BorderType border) {
@@ -25,7 +26,7 @@ Filter::Filter(int in, enum BorderType border) {
 }
 
 int Filter::update(int in) {
-    ax = (in - x) / MASS;
+    ax = SPRING * (in - x) / MASS;
     vx = vx + ax/2 - (vx * FRICTION);
     
     if (borderType == BorderType::LEFT) {

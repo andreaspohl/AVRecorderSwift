@@ -58,9 +58,11 @@ const Size OUT_VIDEO_SIZE = Size(1280, 720);
 //max zoom window
 Size MAX_ZOOMED_WINDOW = Size(640, 360);
 
-
 //factor for reducing the frames for speed
 const static double reduceFactor = 0.5;
+
+//bezel, free room between object and zoomed window
+const int BEZEL = 100 * reduceFactor;
 
 //max frames per file, estimated to not exceed the opencv 4GB file size limit
 //further limited to make short output movies, as VideoWriter slows down extremely with larger file size
@@ -173,16 +175,13 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::BOTTOM);
     
     //unfiltered borders, yet
-    int leftBorder = leftBorderFilter.update(boundingRectangle.x);
-    int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width);
-    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height);
+    int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
+    int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width + BEZEL);
+    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height + BEZEL);
     
     //calculate zoom factor, only from width yet
     double tempWidth = (rightBorder - leftBorder) / reduceFactor;
     zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width);
-    
-    //make zoom image a little bit bigger than the bounding Rectangle
-    zoomFactor = zoomFactor * 0.95;
     
     if (zoomFactor > 1.0) {
         zoomFactor = 1.0;
