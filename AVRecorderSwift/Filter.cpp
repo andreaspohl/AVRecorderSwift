@@ -13,7 +13,7 @@
 using namespace std;
 
 const double SPRING = 2; // translates pixel distance into force
-const double MASS = 10.0;
+const double MASS = 20.0;
 const double FRICTION = 0.8;
 const double MAX_V = 20;
 const double MAX_MINUS_V = 2; //value can grow with MAX_V, but shrink only with MAX_MINUS_V
@@ -35,11 +35,17 @@ int Filter::update(int in) {
         } else if (vx < -MAX_V) {
             vx = -MAX_V;
         }
-    } else {
+    } else if (borderType == BorderType::RIGHT or borderType == BorderType::BOTTOM) {
         if (vx > MAX_V) {
             vx = MAX_V;
         } else if (vx < -MAX_MINUS_V) {
             vx = -MAX_MINUS_V;
+        }
+    } else {
+        if (vx > MAX_V) {
+            vx = MAX_V;
+        } else if (vx < -MAX_V) {
+            vx = -MAX_V;
         }
     }
     

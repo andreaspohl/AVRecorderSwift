@@ -17,7 +17,8 @@ public:
     enum class BorderType {
         LEFT,
         RIGHT,
-        BOTTOM
+        BOTTOM,
+        NONE
     };
     Filter(int x, BorderType border);
     int update(int x);

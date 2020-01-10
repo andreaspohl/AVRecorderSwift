@@ -170,9 +170,10 @@ void inertiaFilter(Point &p) {
 //calculate zoom window from bounding rectangle
 void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     
-    static Filter leftBorderFilter(0, Filter::BorderType::LEFT);
-    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::RIGHT);
-    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::BOTTOM);
+    static Filter leftBorderFilter(0, Filter::BorderType::NONE);
+    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
+    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::NONE);
+    static Filter zoomXPositionFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
     
     //unfiltered borders, yet
     int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
@@ -189,10 +190,52 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
         zoomFactor = 0.0;
     }
     
-    zoomXPosition = (int) leftBorder + (rightBorder - leftBorder) / 2;
+    //zoomXPosition = zoomXPositionFilter.update((int) leftBorder + (rightBorder - leftBorder) / 2);
+    
+    zoomXPosition = zoomXPositionFilter.update((int) boundingRectangle.x + boundingRectangle.width / 2);
 }
 
-void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
+void reduce(Mat in, Mat &out) {
+    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
+}
+
+void cluster(vector<Point> nonZeroPoints) {
+    
+    Mat img = Mat(IN_VIDEO_SIZE, CV_8UC3);
+    reduce(img, img);
+    
+    //cast points into 2D floating point array
+    int sampleCount = (int) nonZeroPoints.size();
+    Mat points(sampleCount, 1, CV_32FC2);
+    for (int i = 0; i < sampleCount; i++) {
+        points.at<Point2f>(i) = nonZeroPoints.at(i);
+    }
+    
+    int clusterCount = MIN(4, sampleCount);
+    Mat centers, labels;
+    
+    if (clusterCount > 0) {
+        TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10, 1.0);
+        
+        
+        double compactness = kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
+        
+        for (int i = 0; i < centers.rows; ++i)
+        {
+            Point2f c = centers.at<Point2f>(i);
+            circle( img, c, 40, Scalar(255, 0, 255), 1, LINE_AA );
+        }
+        
+        for (int i = 0; i < sampleCount; i++) {
+            Point ipt = points.at<Point2f>(i);
+            circle(img, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
+        }
+        
+        imshow("samples", img);
+    }
+}
+
+void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
     
     //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
     //to take the values passed into the function and manipulate them, rather than just working with a copy.
@@ -223,6 +266,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     vector<Point> points;
     findNonZero(thresholdImage, points);
     objectBoundingRectangle = boundingRect(points);
+    
+    //try clustering
+    cluster(points);
     
     //new simple calculation of camera center
     //TODO: replace old calculation above
@@ -369,11 +415,6 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     
 }
 
-void reduce(Mat in, Mat &out) {
-    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
-}
-
-
 void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
     
@@ -384,7 +425,7 @@ void Motion::processVideo(const char * pathName) {
     bool showMask = false;
     
     if (test) {
-        showDifference = false;
+        showDifference = true;
         showActualFrame = false;
         showOutput = true;
         showMask = false;
@@ -519,7 +560,7 @@ void Motion::processVideo(const char * pathName) {
         }
         
         //search for movement in our thresholded image
-        searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
+        trackObjects(thresholdImage, origFrame, zoomedImage, frame);
         
         if (showOutput) {
             imshow("Zoomed Image", zoomedImage);
