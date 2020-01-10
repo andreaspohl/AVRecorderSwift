@@ -199,10 +199,8 @@ void reduce(Mat in, Mat &out) {
     resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
 }
 
-void cluster(vector<Point> nonZeroPoints) {
-    
-    Mat img = Mat(IN_VIDEO_SIZE, CV_8UC3);
-    reduce(img, img);
+//tries to put max 4 clusters
+void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
     
     //cast points into 2D floating point array
     int sampleCount = (int) nonZeroPoints.size();
@@ -215,23 +213,25 @@ void cluster(vector<Point> nonZeroPoints) {
     Mat centers, labels;
     
     if (clusterCount > 0) {
-        TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10, 1.0);
+        TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 5, 1.0);
         
         
         double compactness = kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
         
-        for (int i = 0; i < centers.rows; ++i)
-        {
-            Point2f c = centers.at<Point2f>(i);
-            circle( img, c, 40, Scalar(255, 0, 255), 1, LINE_AA );
+        if (test) {
+            //draw circles around the centers for debugging
+            for (int i = 0; i < centers.rows; ++i)
+            {
+                Point2f c = centers.at<Point2f>(i);
+                circle( redFrame, c, 60, Scalar(255, 0, 255), 1, LINE_AA );
+            }
+            
+            //draw sample points (non zero points)
+            for (int i = 0; i < sampleCount; i++) {
+                Point ipt = points.at<Point2f>(i);
+                circle(redFrame, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
+            }
         }
-        
-        for (int i = 0; i < sampleCount; i++) {
-            Point ipt = points.at<Point2f>(i);
-            circle(img, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
-        }
-        
-        imshow("samples", img);
     }
 }
 
@@ -268,7 +268,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     objectBoundingRectangle = boundingRect(points);
     
     //try clustering
-    cluster(points);
+    cluster(points, redFrame);
     
     //new simple calculation of camera center
     //TODO: replace old calculation above
@@ -383,34 +383,32 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //draw debug information
     if (test) {
         //draw center of gravity of image moment
-        Mat motionImage;
         //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
-        redFrame.copyTo(motionImage);
-        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
         
         //draw center of camera (after inertia filtering)
-        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        line(redFrame, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(redFrame, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
+        line(redFrame, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
+        line(redFrame, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
         
         //draw inverse mass circle
-        circle(motionImage, p, r, Scalar(255, 255, 0));
+        circle(redFrame, p, r, Scalar(255, 255, 0));
         
         //draw bounding rectangle
-        rectangle(motionImage, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
+        rectangle(redFrame, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
         
         //draw zoom rectangle
         Point tl(xx, yy);
         Point br(xx + zoomedWindow.width, yy + zoomedWindow.height);
         tl = tl * reduceFactor;
         br = br * reduceFactor;
-        rectangle(motionImage, tl, br, Scalar(255, 0, 0), 3);
+        rectangle(redFrame, tl, br, Scalar(255, 0, 0), 3);
         
-        imshow("Movement", motionImage);
+        imshow("Movement", redFrame);
     }
     
 }
@@ -425,7 +423,7 @@ void Motion::processVideo(const char * pathName) {
     bool showMask = false;
     
     if (test) {
-        showDifference = true;
+        showDifference = false;
         showActualFrame = false;
         showOutput = true;
         showMask = false;
