@@ -22,6 +22,7 @@
 
 #include "Motion.hpp"
 #include "Filter.hpp"
+#include "ObjectHandler.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -216,8 +217,11 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
         TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 5, 1.0);
         
         
-        double compactness = kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
+        kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
         
+        static ObjectHandler objHandler = ObjectHandler(centers);
+        vector<Point2f> objects = objHandler.update(centers);
+
         if (test) {
             //draw circles around the centers for debugging
             for (int i = 0; i < centers.rows; ++i)
@@ -226,13 +230,20 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
                 circle( redFrame, c, 60, Scalar(255, 0, 255), 1, LINE_AA );
             }
             
+            //draw circles around objects
+            for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
+                circle(redFrame, *obj, 30, Scalar(0, 0, 255), FILLED, LINE_AA);
+            }
+            
             //draw sample points (non zero points)
             for (int i = 0; i < sampleCount; i++) {
                 Point ipt = points.at<Point2f>(i);
                 circle(redFrame, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
             }
+
         }
     }
+    
 }
 
 void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
@@ -326,7 +337,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
     double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 1 (max zoom)
-
+    
     bool newZoomAlgorithm = true;
     if (newZoomAlgorithm) {
         calcZoom(objectBoundingRectangle, p.x, zoomFactor); //TODO: p.x overrides calculation above, code remove

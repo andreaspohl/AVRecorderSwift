@@ -19,6 +19,8 @@
 		E1B6698D1DC271CD008B4734 /* Stitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B6698C1DC271CD008B4734 /* Stitcher.swift */; };
 		E1DAEEB723BCFFF900C39136 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
 		E1DAEEB823BD000200C39136 /* MotionWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */; };
+		E1DC41AB23CB334E007BB7CD /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DC41A923CB334E007BB7CD /* ObjectHandler.cpp */; };
+		E1DC41AC23CB334E007BB7CD /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DC41A923CB334E007BB7CD /* ObjectHandler.cpp */; };
 		E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6761DC4B3E900051771 /* Motion.cpp */; };
 		E1E3B67A1DC4C4A800051771 /* VideoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */; };
 /* End PBXBuildFile section */
@@ -58,6 +60,8 @@
 		E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MotionWrapper.mm; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
 		E1DAEEB623BCFDF900C39136 /* MotionTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotionTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		E1DC41A923CB334E007BB7CD /* ObjectHandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectHandler.cpp; sourceTree = "<group>"; };
+		E1DC41AA23CB334E007BB7CD /* ObjectHandler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ObjectHandler.hpp; sourceTree = "<group>"; };
 		E1E3B6761DC4B3E900051771 /* Motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Motion.cpp; sourceTree = "<group>"; };
 		E1E3B6771DC4B3E900051771 /* Motion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Motion.hpp; sourceTree = "<group>"; };
 		E1E3B6791DC4C4A800051771 /* VideoProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProcessor.swift; sourceTree = "<group>"; };
@@ -142,12 +146,14 @@
 		E1E3B67B1DC4C7E900051771 /* Motion */ = {
 			isa = PBXGroup;
 			children = (
-				E1E3B6771DC4B3E900051771 /* Motion.hpp */,
-				E1E3B6761DC4B3E900051771 /* Motion.cpp */,
 				E172B8F91DC4E02500F3FE7E /* MotionWrapper.h */,
 				E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */,
+				E1E3B6771DC4B3E900051771 /* Motion.hpp */,
+				E1E3B6761DC4B3E900051771 /* Motion.cpp */,
 				E17C08E823C4D8BB003EF0E9 /* Filter.hpp */,
 				E17C08E723C4D8BB003EF0E9 /* Filter.cpp */,
+				E1DC41AA23CB334E007BB7CD /* ObjectHandler.hpp */,
+				E1DC41A923CB334E007BB7CD /* ObjectHandler.cpp */,
 			);
 			name = Motion;
 			sourceTree = "<group>";
@@ -285,6 +291,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1DC41AC23CB334E007BB7CD /* ObjectHandler.cpp in Sources */,
 				E1DAEEB823BD000200C39136 /* MotionWrapper.mm in Sources */,
 				E17C08EA23C4D8BB003EF0E9 /* Filter.cpp in Sources */,
 				E110135D23BCF05300FE08E9 /* MotionTest.swift in Sources */,
@@ -301,6 +308,7 @@
 				E1E3B67A1DC4C4A800051771 /* VideoProcessor.swift in Sources */,
 				E159CFB91DBCC073007D00B5 /* FileHandler.swift in Sources */,
 				E17C08E923C4D8BB003EF0E9 /* Filter.cpp in Sources */,
+				E1DC41AB23CB334E007BB7CD /* ObjectHandler.cpp in Sources */,
 				E1E3B6781DC4B3E900051771 /* Motion.cpp in Sources */,
 				E11CCEE21DDCBAE3006F5F8A /* VideoMerger.swift in Sources */,
 				E1A46E151DC4E52C0011C1E1 /* MotionWrapper.mm in Sources */,
