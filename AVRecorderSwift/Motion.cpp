@@ -252,31 +252,12 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
 
 void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
     
-    //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
-    //to take the values passed into the function and manipulate them, rather than just working with a copy.
-    //eg. we draw to the cameraFeed to be displayed in the main() function.
-    Moments mu;
     //holds last tracking center
     static Point previousCenter(-1, -1);
     
     //holds last zoomFactor
     static double previousZoomFactor = 0;
     
-    //calculate moments
-    mu = moments(thresholdImage, true);
-    //and calculate mass center of the threshold image
-    timestamp("moments");
-    if (mu.m00 > 0) {
-        //if there is a mass center (i.e. some white points on thresholdImage), update theObject
-        theObject[0] = mu.m10 / mu.m00;
-        theObject[1] = mu.m01 / mu.m00;
-    }
-    timestamp("mass");
-    
-    //make some temp x and y variables so we dont have to type out so much
-    int x = theObject[0];
-    int y = theObject[1];
-
     //find non zero points
     vector<Point> points;
     findNonZero(thresholdImage, points);
@@ -291,15 +272,13 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     
     //new simple calculation of camera center
     //TODO: replace old calculation above
-    x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
-    y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
+    int x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
+    int y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
     
-    //calculate a variable circle, depending on mass of object, and zoomFactor
-    //m > 10'000 --> r = 1
-    //m = 0      --> r = maxR
+    //calculate a variable circle, vary with zoomFactor
     const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
-    int r = 0;
-    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
+    int r; //TODO: find some variable way for hysteresis of camera position, maybe dependant on speed?
+    r = (int) (0.5 * maxR / (1 + 2 * previousZoomFactor));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
     if (r <= 0) {
         r = 1;
     }
@@ -334,33 +313,16 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
         p = previousCenter;
     }
     
-    timestamp("calculate");
-    
     //filter
     inertiaFilter(p);
-    
-    timestamp("filter");
     
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
     double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 1 (max zoom)
     
-    bool newZoomAlgorithm = true;
-    if (newZoomAlgorithm) {
-        calcZoom(objectBoundingRectangle, p.x, zoomFactor); //TODO: p.x overrides calculation above, code remove
-    } else {
-        //calculate zoom window size
-        //if p.y is above cameraVerticalPosition --> maximal zoom
-        //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
-        //calculate zoom factor
-        zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
-        if (zoomFactor > 1.0 ) {
-            zoomFactor = 1.0;
-        } else if (zoomFactor < 0.0) {
-            zoomFactor = 0.0;
-        }
-    }
+    calcZoom(objectBoundingRectangle, p.x, zoomFactor);
+
     //store for later usage
     previousZoomFactor = zoomFactor;
     
@@ -401,7 +363,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     
     //draw debug information
     if (test) {
-        //draw center of gravity of image moment
+        //draw center of boundary rectangle of image moment
         //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
         line(redFrame, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
         line(redFrame, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
