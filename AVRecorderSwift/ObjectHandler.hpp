@@ -22,8 +22,9 @@ using namespace cv;
 class ObjectHandler {
     
 public:
-    ObjectHandler(Mat centers);
+    ObjectHandler();
     vector<Point2f> update(Mat centers);
+    vector<Point2f> getObjects();
     
 private:
     vector<Point2f> objects;

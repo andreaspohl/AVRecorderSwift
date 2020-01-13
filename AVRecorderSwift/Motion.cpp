@@ -201,7 +201,7 @@ void reduce(Mat in, Mat &out) {
 }
 
 //tries to put max 4 clusters
-void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
+void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
     
     //cast points into 2D floating point array
     int sampleCount = (int) nonZeroPoints.size();
@@ -212,16 +212,16 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
     
     int clusterCount = MIN(4, sampleCount);
     Mat centers, labels;
-    
+    static ObjectHandler objHandler = ObjectHandler();
+    vector<Point2f> objects = objHandler.getObjects();
+
     if (clusterCount > 0) {
         TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 5, 1.0);
         
-        
         kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
         
-        static ObjectHandler objHandler = ObjectHandler(centers);
-        vector<Point2f> objects = objHandler.update(centers);
-
+        objects = objHandler.update(centers);
+        
         if (test) {
             //draw circles around the centers for debugging
             for (int i = 0; i < centers.rows; ++i)
@@ -240,10 +240,14 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame) {
                 Point ipt = points.at<Point2f>(i);
                 circle(redFrame, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
             }
-
         }
     }
-    
+    //draw circles around objects to thresholdImage, so later zoom frame detection will take them into acount
+    //TODO: this is probably not the best way to interface the objects...
+    for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
+        circle(thresholdImage, *obj, 30, Scalar(255), FILLED, LINE_AA);
+    }
+
 }
 
 void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
@@ -272,14 +276,18 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //make some temp x and y variables so we dont have to type out so much
     int x = theObject[0];
     int y = theObject[1];
-    
-    //calculate the bounding rectangle for all non zero points
+
+    //find non zero points
     vector<Point> points;
     findNonZero(thresholdImage, points);
-    objectBoundingRectangle = boundingRect(points);
-    
+
     //try clustering
-    cluster(points, redFrame);
+    cluster(points, redFrame, thresholdImage);
+    
+    //calculate the bounding rectangle for all non zero points
+    //TODO: clumsy!
+    findNonZero(thresholdImage, points); //find non zero points again, as thresholdImage has been altered by cluster
+    objectBoundingRectangle = boundingRect(points);
     
     //new simple calculation of camera center
     //TODO: replace old calculation above
