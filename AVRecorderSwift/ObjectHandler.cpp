@@ -35,7 +35,10 @@ void addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects) {
     int centerCount = (int) centers.size();
     for (int i = 0; i < centerCount; i ++) {
         Point2f c = centers.at(i);
-        objects.push_back(c);
+        //only add if not too near to left margin
+        if (c.x > 10) {
+            objects.push_back(c);
+        }
     }
 }
 
