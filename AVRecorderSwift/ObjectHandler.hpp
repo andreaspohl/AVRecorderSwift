@@ -22,15 +22,16 @@ using namespace cv;
 class ObjectHandler {
     
 public:
-    ObjectHandler();
+    ObjectHandler(int width, int height);
     vector<Point2f> update(Mat centers);
     vector<Point2f> getObjects();
     
 private:
     vector<Point2f> objects;
+    int width, height;
     
     void mergeObjects();
-
+    void addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects);
 
 };
 

@@ -9,6 +9,7 @@
 #include "ObjectHandler.hpp"
 
 const int ISOLATION = 100; //distance over which separate objects are recognized
+const int BORDER_ZONE = 10; //no storing of objects near the image borders (object may have left the frame)
 
 void matToVector(Mat in, vector<Point2f> &out) {
     for (int i = 0; i < in.rows; i++) {
@@ -31,19 +32,21 @@ bool overlaps(Point2f p1, vector<Point2f> centers) {
     return false;
 }
 
-void addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects) {
+void ObjectHandler::addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects) {
     int centerCount = (int) centers.size();
     for (int i = 0; i < centerCount; i ++) {
         Point2f c = centers.at(i);
-        //only add if not too near to left margin
-        if (c.x > 10) {
+        //only add if not too near to margins
+        if (c.x > BORDER_ZONE and c.x < width - BORDER_ZONE and c.y < height - BORDER_ZONE) {
             objects.push_back(c);
         }
     }
 }
 
 //expects cluster centers as a n x 1 Mat with 2f entries
-ObjectHandler::ObjectHandler() {
+ObjectHandler::ObjectHandler(int inWidth, int inHeight) {
+    width = inWidth;
+    height = inHeight;
 }
 
 //compare previous cluster centers with new ones

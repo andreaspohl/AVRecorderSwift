@@ -212,7 +212,7 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
     
     int clusterCount = MIN(4, sampleCount);
     Mat centers, labels;
-    static ObjectHandler objHandler = ObjectHandler();
+    static ObjectHandler objHandler = ObjectHandler(redFrame.cols, redFrame.rows);
     vector<Point2f> objects = objHandler.getObjects();
 
     if (clusterCount > 0) {
