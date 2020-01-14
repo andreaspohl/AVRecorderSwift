@@ -238,6 +238,13 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
     static ObjectHandler objHandler = ObjectHandler(redFrame.cols, redFrame.rows);
     vector<Point2f> objects = objHandler.getObjects();
 
+    if (test) {
+        //draw circles around objects
+        for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
+            circle(redFrame, *obj, 30, Scalar(0, 0, 255), FILLED, LINE_AA);
+        }
+    }
+    
     if (clusterCount > 0) {
         TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 5, 1.0);
         
@@ -253,11 +260,6 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
                 circle( redFrame, c, 60, Scalar(255, 0, 255), 1, LINE_AA );
             }
             
-            //draw circles around objects
-            for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
-                circle(redFrame, *obj, 30, Scalar(0, 0, 255), FILLED, LINE_AA);
-            }
-            
             //draw sample points (non zero points)
             for (int i = 0; i < sampleCount; i++) {
                 Point ipt = points.at<Point2f>(i);
@@ -265,7 +267,8 @@ void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
             }
         }
     }
-    //draw circles around objects to thresholdImage, so later zoom frame detection will take them into acount
+    
+    //draw circles around objects to thresholdImage, so later zoom frame detection will take them into account
     //TODO: this is probably not the best way to interface the objects...
     for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
         circle(thresholdImage, *obj, 30, Scalar(255), FILLED, LINE_AA);
