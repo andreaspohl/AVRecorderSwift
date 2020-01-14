@@ -207,7 +207,8 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     
     //zoomXPosition = zoomXPositionFilter.update((int) leftBorder + (rightBorder - leftBorder) / 2);
     
-    zoomXPosition = zoomXPositionFilter.update((int) boundingRectangle.x + boundingRectangle.width / 2);
+//    zoomXPosition = zoomXPositionFilter.update((int) boundingRectangle.x + boundingRectangle.width / 2);
+    zoomXPosition = zoomXPositionFilter.update(zoomXPosition);
 }
 
 void reduce(Mat in, Mat &out) {
@@ -432,7 +433,6 @@ void Motion::processVideo(const char * pathName) {
     
     //TODO: calculate age of objects, if very young, do not take into account
     //TODO: bottom border of bounding rectangle
-    //TODO: fix hysteresis of p.x
     
     //strip input file name of ´new´
     string sPathName = (string) pathName;
