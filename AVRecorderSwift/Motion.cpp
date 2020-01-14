@@ -112,7 +112,7 @@ std::string ReplaceString(std::string subject, const std::string& search,
     return subject;
 }
 
-
+//TODO: obsolete
 void inertiaFilter(Point &p) {
     
     //implements an "inertia" filter
@@ -282,7 +282,16 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //calculate the bounding rectangle for all non zero points
     //TODO: clumsy!
     findNonZero(thresholdImage, points); //find non zero points again, as thresholdImage has been altered by cluster
-    objectBoundingRectangle = boundingRect(points);
+    
+    //bounding rectangle. If computed image is empty, take whole picture
+    if (points.size() > 0) {
+        objectBoundingRectangle = boundingRect(points);
+    } else {
+        objectBoundingRectangle.x = 0;
+        objectBoundingRectangle.y = 0;
+        objectBoundingRectangle.width = redFrame.cols;
+        objectBoundingRectangle.height = redFrame.rows;
+    }
     
     //new simple calculation of camera center
     //TODO: replace old calculation above
@@ -421,6 +430,9 @@ void Motion::processVideo(const char * pathName) {
         showMask = false;
     }
     
+    //TODO: calculate age of objects, if very young, do not take into account
+    //TODO: bottom border of bounding rectangle
+    //TODO: fix hysteresis of p.x
     
     //strip input file name of ´new´
     string sPathName = (string) pathName;
@@ -532,12 +544,6 @@ void Motion::processVideo(const char * pathName) {
         //threshold intensity image at a given sensitivity value
         threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        if (showDifference) {
-            //show the difference image and the threshold image
-            imshow("Difference Image", differenceImage);
-            imshow("Threshold Image", thresholdImage);
-        }
-        
         //blur the image to get rid of the noise. This will output an intensity image
         blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
         
@@ -545,8 +551,9 @@ void Motion::processVideo(const char * pathName) {
         threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
         if (showDifference) {
-            //show the threshold image after it's been "blurred"
-            imshow("Final Threshold Image", thresholdImage);
+            //show the difference image and the threshold image
+            imshow("Difference Image", differenceImage);
+            imshow("Threshold Image", thresholdImage);
         }
         
         //search for movement in our thresholded image
@@ -577,6 +584,11 @@ void Motion::processVideo(const char * pathName) {
             }
             
             
+        }
+        
+        if (showDifference) {
+            //show the threshold image after it's been "blurred"
+            imshow("Final Threshold Image", thresholdImage);
         }
         
         if (test) {
