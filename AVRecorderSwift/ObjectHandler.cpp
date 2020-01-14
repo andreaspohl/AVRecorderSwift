@@ -8,7 +8,7 @@
 
 #include "ObjectHandler.hpp"
 
-const int ISOLATION = 100; //distance over which separate objects are recognized
+const int ISOLATION = 60; //distance over which separate objects are recognized
 const int BORDER_ZONE = 10; //no storing of objects near the image borders (object may have left the frame)
 
 void matToVector(Mat in, vector<Point2f> &out) {
@@ -36,8 +36,8 @@ void ObjectHandler::addCentersToObjects(vector<Point2f> centers, vector<Point2f>
     int centerCount = (int) centers.size();
     for (int i = 0; i < centerCount; i ++) {
         Point2f c = centers.at(i);
-        //only add if not too near to margins
-        if (c.x > BORDER_ZONE and c.x < width - BORDER_ZONE and c.y < height - BORDER_ZONE) {
+        //only add if not too near to margins, and only if in the middle band of the image
+        if (c.x > BORDER_ZONE and c.x < width - BORDER_ZONE and c.y < height * 0.75 and c.y > height * 0.25) {
             objects.push_back(c);
         }
     }

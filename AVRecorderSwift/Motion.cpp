@@ -121,9 +121,9 @@ void inertiaFilter(Point &p) {
     //the mass center is the filter output, giving the filter a "real" feeling,
     //as if somebody follows the movement with a heavy camera mounted on a tripod.
     
-    const float mass = 10.0;
+    const float mass = 20.0;
     //friction
-    const float fr = 0.9;
+    const float fr = 1.5;
     //spring factor
     const float spring = 0.1;
     
@@ -144,7 +144,13 @@ void inertiaFilter(Point &p) {
     //vx = vx*friction + ax
     //ax = force / mass
     //and the same for y...
-    static Mat transitionMatrix =  (Mat_<float>(6, 6) << 1, 0, 1, 0, .5, 0, 0, 1, 0, 1, 0, .5, 0, 0, fr, 0, 1, 0, 0, 0, 0, fr, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1);
+    static Mat transitionMatrix =  (Mat_<float>(6, 6) <<
+                                    1, 0, 1, 0, .5, 0,
+                                    0, 1, 0, 1, 0, .5,
+                                    0, 0, fr, 0, 1, 0,
+                                    0, 0, 0, fr, 0, 1,
+                                    0, 0, 0, 0, 1, 0,
+                                    0, 0, 0, 0, 0, 1);
     
     //force that "moves" mass is the difference between last point and actual measurement,
     //multiplied with a "spring" factor
@@ -159,13 +165,21 @@ void inertiaFilter(Point &p) {
     //update state
     state.at<float>(4, 0) = accel.x;
     state.at<float>(5, 0) = accel.y;
-    
+
     //calculate new mass or camera position
     state = transitionMatrix * state;
     
     //update output value
     p.x = (int) state.at<float>(0, 0);
     p.y = (int) state.at<float>(1, 0);
+    
+    //debug
+    if (test) {
+        for (int i = 0; i < 6; i++) {
+            cout << (int) state.at<float>(i,0) << " ";
+        }
+        cout << "\n";
+    }
 }
 
 //calculate zoom window from bounding rectangle
@@ -314,7 +328,8 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     }
     
     //filter
-    inertiaFilter(p);
+    //TODO: remove completely
+    //inertiaFilter(p);
     
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
@@ -365,18 +380,14 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     if (test) {
         //draw center of boundary rectangle of image moment
         //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
-        line(redFrame, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
-        line(redFrame, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
-        line(redFrame, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
-        line(redFrame, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y + 25), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x + 25, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
         
         //draw center of camera (after inertia filtering)
-        line(redFrame, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
-        line(redFrame, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
-        line(redFrame, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
-        line(redFrame, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        line(redFrame, Point(p.x, p.y + 25), Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(redFrame, Point(p.x + 25, p.y), Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
         
-        //draw inverse mass circle
+        //draw hysteresis circle
         circle(redFrame, p, r, Scalar(255, 255, 0));
         
         //draw bounding rectangle
