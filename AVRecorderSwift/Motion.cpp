@@ -193,11 +193,19 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     //unfiltered borders, yet
     int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
     int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width + BEZEL);
-    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height + BEZEL);
-    
+    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height);
+
     //calculate zoom factor, only from width yet
     double tempWidth = (rightBorder - leftBorder) / reduceFactor;
     zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width);
+    
+    //check bottom border, if it results in smaller zoomFactor, take that one
+    double tempHeight = (bottomBorder - IN_VIDEO_SIZE.height * reduceFactor / 2) / reduceFactor * 2; //vertical zoom center is always height/2
+    double vertZoomFactor = (IN_VIDEO_SIZE.height - tempHeight) / (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height);
+    
+    if (vertZoomFactor < zoomFactor) {
+        zoomFactor = vertZoomFactor;
+    }
     
     if (zoomFactor > 1.0) {
         zoomFactor = 1.0;
