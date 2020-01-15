@@ -193,22 +193,22 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     //unfiltered borders, yet
     int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
     int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width + BEZEL);
-    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height);
+    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height + BEZEL / 2);
 
     //calculate zoom factor, only from width yet
     double tempWidth = (rightBorder - leftBorder) / reduceFactor;
-    zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width);
+    zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) * 100;
     
     //check bottom border, if it results in smaller zoomFactor, take that one
     double tempHeight = (bottomBorder - IN_VIDEO_SIZE.height * reduceFactor / 2) / reduceFactor * 2; //vertical zoom center is always height/2
-    double vertZoomFactor = (IN_VIDEO_SIZE.height - tempHeight) / (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height);
+    double vertZoomFactor = (IN_VIDEO_SIZE.height - tempHeight) / (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height) * 100;
     
     if (vertZoomFactor < zoomFactor) {
         zoomFactor = vertZoomFactor;
     }
     
-    if (zoomFactor > 1.0) {
-        zoomFactor = 1.0;
+    if (zoomFactor > 100.0) {
+        zoomFactor = 100.0;
     } else if (zoomFactor < 0.0) {
         zoomFactor = 0.0;
     }
@@ -355,7 +355,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
-    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 1 (max zoom)
+    double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
     
     calcZoom(objectBoundingRectangle, p.x, zoomFactor);
 
@@ -363,8 +363,8 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     previousZoomFactor = zoomFactor;
     
     //make zoomed Image
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height));
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor / 100 * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width));
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor / 100 * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height));
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
