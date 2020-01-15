@@ -112,76 +112,6 @@ std::string ReplaceString(std::string subject, const std::string& search,
     return subject;
 }
 
-//TODO: obsolete
-void inertiaFilter(Point &p) {
-    
-    //implements an "inertia" filter
-    //think of a mass, lying on the video plane (friction fr),
-    //moved around by p which is connected to the mass by a spring.
-    //the mass center is the filter output, giving the filter a "real" feeling,
-    //as if somebody follows the movement with a heavy camera mounted on a tripod.
-    
-    const float mass = 20.0;
-    //friction
-    const float fr = 1.5;
-    //spring factor
-    const float spring = 0.1;
-    
-    //inertia state vektor is x, y, vx, vy, ax, ay
-    static Mat state(6, 1, CV_32F, Scalar::all(0));
-    
-    //initialize filter position to the center of movement p
-    static bool firstTime = true;
-    if (firstTime) {
-        state.at<float>(0, 0) = p.x;
-        state.at<float>(1, 0) = p.y;
-        firstTime = false;
-    }
-    
-    //transition Matrix
-    //Newton:
-    //x = x + vx + 1/2ax
-    //vx = vx*friction + ax
-    //ax = force / mass
-    //and the same for y...
-    static Mat transitionMatrix =  (Mat_<float>(6, 6) <<
-                                    1, 0, 1, 0, .5, 0,
-                                    0, 1, 0, 1, 0, .5,
-                                    0, 0, fr, 0, 1, 0,
-                                    0, 0, 0, fr, 0, 1,
-                                    0, 0, 0, 0, 1, 0,
-                                    0, 0, 0, 0, 0, 1);
-    
-    //force that "moves" mass is the difference between last point and actual measurement,
-    //multiplied with a "spring" factor
-    Point pos = Point(state.at<float>(0, 0), state.at<float>(1, 0));
-    Point force = spring * (p - pos);
-    
-    //acceleration
-    Point2f accel;
-    accel.x = force.x / mass;
-    accel.y = force.y / mass;
-    
-    //update state
-    state.at<float>(4, 0) = accel.x;
-    state.at<float>(5, 0) = accel.y;
-
-    //calculate new mass or camera position
-    state = transitionMatrix * state;
-    
-    //update output value
-    p.x = (int) state.at<float>(0, 0);
-    p.y = (int) state.at<float>(1, 0);
-    
-    //debug
-    if (test) {
-        for (int i = 0; i < 6; i++) {
-            cout << (int) state.at<float>(i,0) << " ";
-        }
-        cout << "\n";
-    }
-}
-
 //calculate zoom window from bounding rectangle
 void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     
@@ -309,7 +239,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     int x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
     int y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
     
-    //calculate a variable circle, vary with zoomFactor
+    //calculate a variable circle, vary with zoomFactor, for later use as hysteresis range
     const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
     int r; //TODO: find some variable way for hysteresis of camera position, maybe dependant on speed?
     r = (int) (0.5 * maxR / (1 + 2 * previousZoomFactor / 100));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
@@ -346,10 +276,6 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
         //p inside circle --> don't move
         p = previousCenter;
     }
-    
-    //filter
-    //TODO: remove completely
-    //inertiaFilter(p);
     
     //calculate zoom factor
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
@@ -442,7 +368,6 @@ void Motion::processVideo(const char * pathName) {
     }
     
     //TODO: calculate age of objects, if very young, do not take into account
-    //TODO: bottom border of bounding rectangle
     
     //strip input file name of ´new´
     string sPathName = (string) pathName;
