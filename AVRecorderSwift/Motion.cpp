@@ -306,14 +306,13 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     }
     
     //new simple calculation of camera center
-    //TODO: replace old calculation above
     int x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
     int y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
     
     //calculate a variable circle, vary with zoomFactor
     const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
     int r; //TODO: find some variable way for hysteresis of camera position, maybe dependant on speed?
-    r = (int) (0.5 * maxR / (1 + 2 * previousZoomFactor));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
+    r = (int) (0.5 * maxR / (1 + 2 * previousZoomFactor / 100));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
     if (r <= 0) {
         r = 1;
     }
