@@ -143,10 +143,8 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
         zoomFactor = 0.0;
     }
     
-    //zoomXPosition = zoomXPositionFilter.update((int) leftBorder + (rightBorder - leftBorder) / 2);
-    
-//    zoomXPosition = zoomXPositionFilter.update((int) boundingRectangle.x + boundingRectangle.width / 2);
     zoomXPosition = zoomXPositionFilter.update(zoomXPosition);
+    
 }
 
 void reduce(Mat in, Mat &out) {
@@ -286,10 +284,10 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
 
     //store for later usage
     previousZoomFactor = zoomFactor;
-    
+
     //make zoomed Image
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor / 100 * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor / 100 * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height));
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) / 100);
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height) / 100);
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
