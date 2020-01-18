@@ -3,7 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
 	<key>NSCameraUsageDescription</key>
 	<string>AVRecorderSwift requires access to the cameras for recording videos for motion detection.</string>
 	<key>NSMicrophoneUsageDescription</key>
