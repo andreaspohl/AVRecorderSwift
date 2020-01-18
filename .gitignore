@@ -39,3 +39,8 @@ makeFile
 build/*
 Pods/*
 Frameworks/ORSSerialPort/
+
+# and even more stuff by andreas
+*.xcuserstate
+*.DS_Store
+

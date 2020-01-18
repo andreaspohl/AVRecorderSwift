@@ -21,6 +21,8 @@
 //0.3 trying to record and store to file
 
 #include "Motion.hpp"
+#include "Filter.hpp"
+#include "ObjectHandler.hpp"
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -54,10 +56,14 @@ const Size IN_VIDEO_SIZE = Size(1920, 1080);
 //output video size. For movies from Lumix, this is also the input video size.
 const Size OUT_VIDEO_SIZE = Size(1280, 720);
 
-//TODO: make max zoom window a const as well
+//max zoom window
+Size MAX_ZOOMED_WINDOW = Size(640, 360);
 
 //factor for reducing the frames for speed
 const static double reduceFactor = 0.5;
+
+//bezel, free room between object and zoomed window
+const int BEZEL = 100 * reduceFactor;
 
 //max frames per file, estimated to not exceed the opencv 4GB file size limit
 //further limited to make short output movies, as VideoWriter slows down extremely with larger file size
@@ -106,100 +112,135 @@ std::string ReplaceString(std::string subject, const std::string& search,
     return subject;
 }
 
+//calculate zoom window from bounding rectangle
+void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
+    
+    static Filter leftBorderFilter(0, Filter::BorderType::NONE);
+    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
+    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::NONE);
+    static Filter zoomXPositionFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
+    
+    //unfiltered borders, yet
+    int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
+    int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width + BEZEL);
+    int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height + BEZEL / 2);
 
-void inertiaFilter(Point &p) {
+    //calculate zoom factor, only from width yet
+    double tempWidth = (rightBorder - leftBorder) / reduceFactor;
+    zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) * 100;
     
-    //implements an "inertia" filter
-    //think of a mass, lying on the video plane (friction fr),
-    //moved around by p which is connected to the mass by a spring.
-    //the mass center is the filter output, giving the filter a "real" feeling,
-    //as if somebody follows the movement with a heavy camera mounted on a tripod.
+    //check bottom border, if it results in smaller zoomFactor, take that one
+    double tempHeight = (bottomBorder - IN_VIDEO_SIZE.height * reduceFactor / 2) / reduceFactor * 2; //vertical zoom center is always height/2
+    double vertZoomFactor = (IN_VIDEO_SIZE.height - tempHeight) / (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height) * 100;
     
-    const float mass = 10.0;
-    //friction
-    const float fr = 0.9;
-    //spring factor
-    const float spring = 0.1;
-    
-    //inertia state vektor is x, y, vx, vy, ax, ay
-    static Mat state(6, 1, CV_32F, Scalar::all(0));
-    
-    //initialize filter position to the center of movement p
-    static bool firstTime = true;
-    if (firstTime) {
-        state.at<float>(0, 0) = p.x;
-        state.at<float>(1, 0) = p.y;
-        firstTime = false;
+    if (vertZoomFactor < zoomFactor) {
+        zoomFactor = vertZoomFactor;
     }
     
-    //transition Matrix
-    //Newton:
-    //x = x + vx + 1/2ax
-    //vx = vx*friction + ax
-    //ax = force / mass
-    //and the same for y...
-    static Mat transitionMatrix =  (Mat_<float>(6, 6) << 1, 0, 1, 0, .5, 0, 0, 1, 0, 1, 0, .5, 0, 0, fr, 0, 1, 0, 0, 0, 0, fr, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1);
+    if (zoomFactor > 100.0) {
+        zoomFactor = 100.0;
+    } else if (zoomFactor < 0.0) {
+        zoomFactor = 0.0;
+    }
     
-    //force that "moves" mass is the difference between last point and actual measurement,
-    //multiplied with a "spring" factor
-    Point pos = Point(state.at<float>(0, 0), state.at<float>(1, 0));
-    Point force = spring * (p - pos);
+    zoomXPosition = zoomXPositionFilter.update(zoomXPosition);
     
-    //acceleration
-    Point2f accel;
-    accel.x = force.x / mass;
-    accel.y = force.y / mass;
-    
-    //update state
-    state.at<float>(4, 0) = accel.x;
-    state.at<float>(5, 0) = accel.y;
-    
-    //calculate new mass or camera position
-    state = transitionMatrix * state;
-    
-    //update output value
-    p.x = (int) state.at<float>(0, 0);
-    p.y = (int) state.at<float>(1, 0);
 }
 
-void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
+void reduce(Mat in, Mat &out) {
+    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
+}
+
+//tries to put max 4 clusters
+void cluster(vector<Point> nonZeroPoints, Mat &redFrame, Mat &thresholdImage) {
     
-    //notice how we use the '&' operator, objectDetected and cameraFeed and zoomedImage. This is because we wish
-    //to take the values passed into the function and manipulate them, rather than just working with a copy.
-    //eg. we draw to the cameraFeed to be displayed in the main() function.
-    Moments mu;
+    //cast points into 2D floating point array
+    int sampleCount = (int) nonZeroPoints.size();
+    Mat points(sampleCount, 1, CV_32FC2);
+    for (int i = 0; i < sampleCount; i++) {
+        points.at<Point2f>(i) = nonZeroPoints.at(i);
+    }
+    
+    int clusterCount = MIN(4, sampleCount);
+    Mat centers, labels;
+    static ObjectHandler objHandler = ObjectHandler(redFrame.cols, redFrame.rows);
+    vector<Point2f> objects = objHandler.getObjects();
+
+    if (test) {
+        //draw circles around objects
+        for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
+            circle(redFrame, *obj, 30, Scalar(0, 0, 255), FILLED, LINE_AA);
+        }
+    }
+    
+    if (clusterCount > 0) {
+        TermCriteria crit = TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 5, 1.0);
+        
+        kmeans(points, clusterCount, labels, crit, 3, KMEANS_PP_CENTERS, centers);
+        
+        objects = objHandler.update(centers);
+        
+        if (test) {
+            //draw circles around the centers for debugging
+            for (int i = 0; i < centers.rows; ++i)
+            {
+                Point2f c = centers.at<Point2f>(i);
+                circle( redFrame, c, 60, Scalar(255, 0, 255), 1, LINE_AA );
+            }
+            
+            //draw sample points (non zero points)
+            for (int i = 0; i < sampleCount; i++) {
+                Point ipt = points.at<Point2f>(i);
+                circle(redFrame, ipt, 1, Scalar(255, 255, 0), FILLED, LINE_AA);
+            }
+        }
+    }
+    
+    //draw circles around objects to thresholdImage, so later zoom frame detection will take them into account
+    //TODO: this is probably not the best way to interface the objects...
+    for (auto obj = objects.begin(); obj != objects.end(); ++obj) {
+        circle(thresholdImage, *obj, 30, Scalar(255), FILLED, LINE_AA);
+    }
+
+}
+
+void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat redFrame) {
+    
     //holds last tracking center
     static Point previousCenter(-1, -1);
     
     //holds last zoomFactor
     static double previousZoomFactor = 0;
     
-    //calculate moments
-    mu = moments(thresholdImage, true);
-    //and calculate mass center of the threshold image
-    timestamp("moments");
-    if (mu.m00 > 0) {
-        //if there is a mass center (i.e. some white points on thresholdImage), update theObject
-        theObject[0] = mu.m10 / mu.m00;
-        theObject[1] = mu.m01 / mu.m00;
-    }
-    timestamp("mass");
-    
-    //make some temp x and y variables so we dont have to type out so much
-    int x = theObject[0];
-    int y = theObject[1];
-    
-    //calculate the bounding rectangle for all non zero points
+    //find non zero points
     vector<Point> points;
     findNonZero(thresholdImage, points);
-    objectBoundingRectangle = boundingRect(points);
+
+    //try clustering
+    cluster(points, redFrame, thresholdImage);
     
-    //calculate a variable circle, depending on mass of object, and zoomFactor
-    //m > 10'000 --> r = 1
-    //m = 0      --> r = maxR
+    //calculate the bounding rectangle for all non zero points
+    //TODO: clumsy!
+    findNonZero(thresholdImage, points); //find non zero points again, as thresholdImage has been altered by cluster
+    
+    //bounding rectangle. If computed image is empty, take whole picture
+    if (points.size() > 0) {
+        objectBoundingRectangle = boundingRect(points);
+    } else {
+        objectBoundingRectangle.x = 0;
+        objectBoundingRectangle.y = 0;
+        objectBoundingRectangle.width = redFrame.cols;
+        objectBoundingRectangle.height = redFrame.rows;
+    }
+    
+    //new simple calculation of camera center
+    int x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
+    int y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
+    
+    //calculate a variable circle, vary with zoomFactor, for later use as hysteresis range
     const int maxR = (int) IN_VIDEO_SIZE.height / 8; //TODO: an 1/8 is the max R
-    int r = 0;
-    r = (int) ((10000 - mu.m00) / 10000 * maxR / ((100 - previousZoomFactor)/100*3));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
+    int r; //TODO: find some variable way for hysteresis of camera position, maybe dependant on speed?
+    r = (int) (0.5 * maxR / (1 + 2 * previousZoomFactor / 100));  //TODO: 3 is about the factor between in_video and max_zoom --> calculate
     if (r <= 0) {
         r = 1;
     }
@@ -234,36 +275,19 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
         p = previousCenter;
     }
     
-    timestamp("calculate");
-    
-    //filter
-    inertiaFilter(p);
-    
-    timestamp("filter");
-    
     //calculate zoom factor
-    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2; // + 90?
-    Size zoomedWindow = Size(640, 360);
-    Size maxZoomedWindow = zoomedWindow;
-    
-    //calculate zoom window size
-    //if p.y is above cameraVerticalPosition --> maximal zoom
-    //if p.y is halfway between cameraVerticalPosition and lower image border --> no zoom
-    //calculate zoom factor
+    int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
+    Size zoomedWindow = MAX_ZOOMED_WINDOW;
     double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
-    zoomFactor = 1.0 - (2.0 * (p.y / reduceFactor - cameraVerticalPosition) / (IN_VIDEO_SIZE.height - cameraVerticalPosition));
-    if (zoomFactor > 1.0 ) {
-        zoomFactor = 1.0;
-    } else if (zoomFactor < 0.1) {
-        zoomFactor = 0.1;
-    }
     
+    calcZoom(objectBoundingRectangle, p.x, zoomFactor);
+
     //store for later usage
     previousZoomFactor = zoomFactor;
-    
+
     //make zoomed Image
-    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - maxZoomedWindow.width));
-    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - maxZoomedWindow.height));
+    zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) / 100);
+    zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height) / 100);
     
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
@@ -281,8 +305,8 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     if (xx < 0) xx = 0;
     if (yy < 0) yy = 0;
     
-    int maxX = IN_VIDEO_SIZE.width - zoomedWindow.width - 1;
-    int maxY = IN_VIDEO_SIZE.height - zoomedWindow.height - 1;
+    int maxX = IN_VIDEO_SIZE.width - zoomedWindow.width;
+    int maxY = IN_VIDEO_SIZE.height - zoomedWindow.height;
     
     if (xx > maxX) xx = maxX;
     if (yy > maxY) yy = maxY;
@@ -298,43 +322,32 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Ma
     
     //draw debug information
     if (test) {
-        //draw center of gravity of image moment
-        Mat motionImage;
+        //draw center of boundary rectangle of image moment
         //cvtColor(redFrame, motionImage, COLOR_GRAY2RGB);
-        redFrame.copyTo(motionImage);
-        line(motionImage, Point(x, y), Point(x, y - 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x, y + 25), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
-        line(motionImage, Point(x, y), Point(x + 25, y), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x, y + 25), Point(x, y - 25), Scalar(0, 255, 0), 3);
+        line(redFrame, Point(x + 25, y), Point(x - 25, y), Scalar(0, 255, 0), 3);
         
         //draw center of camera (after inertia filtering)
-        line(motionImage, p, Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x, p.y + 25), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
-        line(motionImage, p, Point(p.x + 25, p.y), Scalar(255, 255, 0), 3);
+        line(redFrame, Point(p.x, p.y + 25), Point(p.x, p.y - 25), Scalar(255, 255, 0), 3);
+        line(redFrame, Point(p.x + 25, p.y), Point(p.x - 25, p.y), Scalar(255, 255, 0), 3);
         
-        //draw inverse mass circle
-        circle(motionImage, p, r, Scalar(255, 255, 0));
+        //draw hysteresis circle
+        circle(redFrame, p, r, Scalar(255, 255, 0));
         
         //draw bounding rectangle
-        rectangle(motionImage, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
+        rectangle(redFrame, objectBoundingRectangle.tl(), objectBoundingRectangle.br(), Scalar(0, 255, 255), 3);
         
         //draw zoom rectangle
         Point tl(xx, yy);
         Point br(xx + zoomedWindow.width, yy + zoomedWindow.height);
         tl = tl * reduceFactor;
         br = br * reduceFactor;
-        rectangle(motionImage, tl, br, Scalar(255, 0, 0), 3);
+        rectangle(redFrame, tl, br, Scalar(255, 0, 0), 3);
         
-        imshow("Movement", motionImage);
+        imshow("Movement", redFrame);
     }
     
 }
-
-void reduce(Mat in, Mat &out) {
-    resize(in, out, Size(), reduceFactor, reduceFactor, INTER_CUBIC);
-}
-
 
 void Motion::processVideo(const char * pathName) {
     cout << "Motion.processVideo started with " << pathName << "\n";
@@ -352,6 +365,7 @@ void Motion::processVideo(const char * pathName) {
         showMask = false;
     }
     
+    //TODO: calculate age of objects, if very young, do not take into account
     
     //strip input file name of ´new´
     string sPathName = (string) pathName;
@@ -463,12 +477,6 @@ void Motion::processVideo(const char * pathName) {
         //threshold intensity image at a given sensitivity value
         threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
-        if (showDifference) {
-            //show the difference image and the threshold image
-            imshow("Difference Image", differenceImage);
-            imshow("Threshold Image", thresholdImage);
-        }
-        
         //blur the image to get rid of the noise. This will output an intensity image
         blur(thresholdImage, thresholdImage, Size(BLUR_SIZE, BLUR_SIZE));
         
@@ -476,12 +484,13 @@ void Motion::processVideo(const char * pathName) {
         threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
         
         if (showDifference) {
-            //show the threshold image after it's been "blurred"
-            imshow("Final Threshold Image", thresholdImage);
+            //show the difference image and the threshold image
+            imshow("Difference Image", differenceImage);
+            imshow("Threshold Image", thresholdImage);
         }
         
         //search for movement in our thresholded image
-        searchForMovement(thresholdImage, origFrame, zoomedImage, frame);
+        trackObjects(thresholdImage, origFrame, zoomedImage, frame);
         
         if (showOutput) {
             imshow("Zoomed Image", zoomedImage);
@@ -508,6 +517,11 @@ void Motion::processVideo(const char * pathName) {
             }
             
             
+        }
+        
+        if (showDifference) {
+            //show the threshold image after it's been "blurred"
+            imshow("Final Threshold Image", thresholdImage);
         }
         
         if (test) {

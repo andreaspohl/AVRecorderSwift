@@ -19,7 +19,12 @@ class MotionTest: XCTestCase {
     }
 
     func testMotion() {
-        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/2019-12-10 10-08-10 CAM0 new.mov")
+//        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/2019-12-10 10-08-10 CAM0 new.mov")
+//        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/1 new.mov")
+//        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/2 new.mov")
+//        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/3 new.mov")
+        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/4 new.mov")
+//        MotionWrapper().processVideoDebug("/Users/andreas/Movies/AVRecorderTest/10sec new.mov")
     }
     
     func testExample() {
