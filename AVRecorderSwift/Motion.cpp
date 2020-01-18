@@ -449,13 +449,12 @@ void Motion::processVideo(const char * pathName) {
         imshow("Mask", mask);
     }
     
-    while (true) {
+    
+    while (capture.read(origFrame)) {
         
         //set first grayImage to the last one read from camera
         swap(grayImage1, grayImage2);
         
-        //read next frame
-        if (!capture.read(origFrame)) break;
         reduce(origFrame, frame);
         
         if (showActualFrame) {

@@ -38,7 +38,25 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         session!.sessionPreset = AVCaptureSession.Preset.high
         
         //look for device
-        device = AVCaptureDevice.default(for: AVMediaType.video)
+        let devices = AVCaptureDevice.devices(for: AVMediaType.video)
+        
+        for dev in devices {
+            print(dev.localizedName)
+        }
+        
+        var takeDefault = true
+        for dev in devices {
+            if (dev.localizedName.contains("C920")) {
+                device = dev
+                takeDefault = false
+                break
+            }
+        }
+        
+        if takeDefault {
+            device = AVCaptureDevice.default(for: AVMediaType.video)
+        }
+        
         let deviceName = device?.localizedName
         print("DeviceName: \(String(describing: deviceName))")
         
@@ -112,12 +130,10 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         let toURL = donePathAndFileNameWithExtension
         
-        if recordingUrl != nil {
-            do {
-                try fileManager.moveItem(at: fromURL!, to: toURL)
-            } catch let moveError as NSError {
-                print(moveError.localizedDescription)
-            }
+        do {
+            try fileManager.moveItem(at: fromURL!, to: toURL)
+        } catch let moveError as NSError {
+            print(moveError.localizedDescription)
         }
         
     }
@@ -158,8 +174,7 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         print("recording to file: \(filePathNameExtension)")
         movieFileOutput!.startRecording(to: newUrl!, recordingDelegate: self)
         
-        //now rename the old file
-        renameFileDone(recordingUrl)
+        //renaming will be done by fileOutput didFinishRecordingTo
         
         //remember the new file name and url
         recordingUrl = newUrl!
@@ -170,7 +185,6 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         print("stop recording")
         movieNumber = 0
         movieFileOutput!.stopRecording()
-        renameFileDone(recordingUrl)
         recordingUrl = nil
         
         session!.stopRunning()
@@ -179,12 +193,12 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     //MARK: Delegate methods
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        print("finish recording")
+        print("finished recording", outputFileURL.lastPathComponent)
         if (error != nil) {
             // has most probably been finished because movie file has reached intenden size --> restart
             startRecording()
         }
+        renameFileDone(outputFileURL)
     }
     
 }
-
