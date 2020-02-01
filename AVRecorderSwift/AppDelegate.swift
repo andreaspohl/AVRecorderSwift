@@ -194,8 +194,8 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         print("finished recording", outputFileURL.lastPathComponent)
-        if (error != nil) {
-            // has most probably been finished because movie file has reached intenden size --> restart
+        if (error.debugDescription.contains("Code=-11810")) {
+            // has been finished because movie file has reached intended size --> restart
             startRecording()
         }
         renameFileDone(outputFileURL)
