@@ -31,6 +31,8 @@
 			compilerSpec = "com.apple.build-tasks.copy-plist-file";
 			filePatterns = info.plist;
 			fileType = pattern.proxy;
+			inputFiles = (
+			);
 			isEditable = 1;
 			name = "Copy Plist File";
 			outputFiles = (
@@ -57,6 +59,7 @@
 		E17D277823049DAC006DD3A5 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AVRecorderSwift/Info.plist; sourceTree = "<group>"; };
 		E17D277923073FD0006DD3A5 /* ORSSerial.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ORSSerial.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E193D5AC1C6B8B9F00EB4BE5 /* AVRecorderSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AVRecorderSwift-Bridging-Header.h"; path = "AVRecorderSwift/AVRecorderSwift-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		E19F8D0D23E7197700F99E60 /* AVRecorderSwift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AVRecorderSwift.entitlements; sourceTree = "<group>"; };
 		E1A46E141DC4E52C0011C1E1 /* MotionWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MotionWrapper.mm; sourceTree = "<group>"; };
 		E1B6698C1DC271CD008B4734 /* Stitcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stitcher.swift; sourceTree = "<group>"; };
 		E1DAEEB623BCFDF900C39136 /* MotionTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotionTest-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 		E127517D1C4A422F004BE799 /* AVRecorderSwift */ = {
 			isa = PBXGroup;
 			children = (
+				E19F8D0D23E7197700F99E60 /* AVRecorderSwift.entitlements */,
 				E127517E1C4A422F004BE799 /* main.swift */,
 				E12751851C4AA29D004BE799 /* AppDelegate.swift */,
 				E159CFB81DBCC073007D00B5 /* FileHandler.swift */,
@@ -220,7 +224,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Andreas Pohl";
 				TargetAttributes = {
 					E110135923BCF05300FE08E9 = {
@@ -433,7 +437,7 @@
 					"/usr/local/Cellar/opencv/4.2.0_1/lib/**",
 					/usr/local/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -550,7 +554,7 @@
 					"/usr/local/Cellar/opencv/4.2.0_1/lib/**",
 					/usr/local/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -621,14 +625,18 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = AVRecorderSwift/AVRecorderSwift.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = ST37Z4RF7D;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/AVRecorderSwift/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 3.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = Hallenkamera;
@@ -645,14 +653,18 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = AVRecorderSwift/AVRecorderSwift.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = ST37Z4RF7D;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = "${inherited}";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/AVRecorderSwift/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 3.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = Hallenkamera;

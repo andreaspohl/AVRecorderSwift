@@ -38,14 +38,14 @@ class AVRecorderDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         session!.sessionPreset = AVCaptureSession.Preset.high
         
         //look for device
-        let devices = AVCaptureDevice.devices(for: AVMediaType.video)
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: .video, position: .unspecified)
         
-        for dev in devices {
+        for dev in discoverySession.devices {
             print(dev.localizedName)
         }
         
         var takeDefault = true
-        for dev in devices {
+        for dev in discoverySession.devices {
             if (dev.localizedName.contains("C920")) {
                 device = dev
                 takeDefault = false
