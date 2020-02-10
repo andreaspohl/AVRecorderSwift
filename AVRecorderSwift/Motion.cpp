@@ -452,6 +452,22 @@ void Motion::processVideo(const char * pathName) {
     
     while (capture.read(origFrame)) {
         
+        //check for max file size, if MAX_FRAMES is exceeded, open a new file.
+        if (frameCount > MAX_FRAMES) {
+            frameCount = 0;
+            outVideo.release();
+            fileCount++;
+            //add leading 0 to fileCount so later the snippets get sorted correctly (001, 002, 003, ...)
+            std::string fileCountString = std::to_string(fileCount);
+            fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
+            fileName = path + inFileName + " " + fileCountString + " processing.mov";
+            outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
+            if (!outVideo.isOpened()) {
+                cout << "ERROR OPENING OUTPUT STREAM\n";
+                return;
+            }
+        }
+
         //set first grayImage to the last one read from camera
         swap(grayImage1, grayImage2);
         
@@ -499,24 +515,6 @@ void Motion::processVideo(const char * pathName) {
         
         //update file size / frame count
         frameCount++;
-        
-        //check for max file size, if MAX_FRAMES is exceeded, open a new file.
-        if (frameCount > MAX_FRAMES) {
-            frameCount = 0;
-            outVideo.release();
-            fileCount++;
-            //add leading 0 to fileCount so later the snippets get sorted correctly (001, 002, 003, ...)
-            std::string fileCountString = std::to_string(fileCount);
-            fileCountString = std::string(3 - fileCountString.length(), '0') + fileCountString;
-            fileName = path + inFileName + " " + fileCountString + " processing.mov";
-            outVideo.open(fileName, videoCodec, capture.get(CAP_PROP_FPS), OUT_VIDEO_SIZE, true);
-            if (!outVideo.isOpened()) {
-                cout << "ERROR OPENING OUTPUT STREAM\n";
-                return;
-            }
-            
-            
-        }
         
         if (showDifference) {
             //show the threshold image after it's been "blurred"
