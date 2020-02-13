@@ -11,19 +11,19 @@
 const int ISOLATION = 60; //distance over which separate objects are recognized
 const int BORDER_ZONE = 10; //no storing of objects near the image borders (object may have left the frame)
 
-void matToVector(Mat in, vector<Point2f> &out) {
+void ObjectHandler::matToVector(Mat in, vector<Object> &out) {
     for (int i = 0; i < in.rows; i++) {
-        Point2f c = in.at<Point2f>(i);
-        out.push_back(c);
+        Object object;
+        object.point = in.at<Point2f>(i);
+        out.push_back(object);
     }
 }
 
 //checks if p1 is overlapping with any of the centers (distance ISOLATION)
-bool overlaps(Point2f p1, vector<Point2f> centers) {
+bool ObjectHandler::overlaps(Point2f p1, vector<Object> centers) {
     static int isolationSqare = pow(ISOLATION,2);
-    int centerCount = (int) centers.size();
-    for (int i = 0; i < centerCount; i++) {
-        Point2f p2 = centers[i];
+    for (auto it = centers.begin(); it != centers.end(); ++it) {
+        Point2f p2 = (*it).point;
         int distanceSquare = pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2);
         if (distanceSquare < isolationSqare) {
             return true;
@@ -32,13 +32,15 @@ bool overlaps(Point2f p1, vector<Point2f> centers) {
     return false;
 }
 
-void ObjectHandler::addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects) {
-    int centerCount = (int) centers.size();
-    for (int i = 0; i < centerCount; i ++) {
-        Point2f c = centers.at(i);
+//add given centers to objects
+void ObjectHandler::addCentersToObjects(vector<Object> centers) {
+    for (auto center = centers.begin(); center != centers.end(); ++center) {
+        Point2f c = (*center).point;
         //only add if not too near to margins, and only if in the middle band of the image
         if (c.x > BORDER_ZONE and c.x < width - BORDER_ZONE and c.y < height * 0.75 and c.y > height * 0.25) {
-            objects.push_back(c);
+            Object obj;
+            obj.point = c;
+            objects.push_back(obj);
         }
     }
 }
@@ -55,20 +57,32 @@ ObjectHandler::ObjectHandler(int inWidth, int inHeight) {
 //in the end, add all new centers to new previous ones
 vector<Point2f> ObjectHandler::update(Mat clusterCenters) {
     
-    vector<Point2f> centers;
+    vector<Object> centers;
     matToVector(clusterCenters, centers);
     
     for (auto it = objects.begin(); it != objects.end(); ++it) {
-        if (overlaps(*it, centers)) {
+        if (overlaps((*it).point, centers)) {
             objects.erase(it--); //-- is necessary to set iterator back to a not erased instance
         }
     }
     
-    addCentersToObjects(centers, objects);
+    addCentersToObjects(centers);
     
-    return objects;
+    vector<Point2f> objectPoints;
+    
+    for (auto object = objects.begin(); object != objects.end(); ++object) {
+        objectPoints.push_back((*object).point);
+    }
+    
+    return getObjects();
 }
 
 vector<Point2f> ObjectHandler::getObjects() {
-    return objects;
+    vector<Point2f> objectPoints;
+    
+    for (auto object = objects.begin(); object != objects.end(); ++object) {
+        objectPoints.push_back((*object).point);
+    }
+    
+    return objectPoints;
 }
