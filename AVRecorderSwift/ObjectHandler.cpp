@@ -10,6 +10,8 @@
 
 const int ISOLATION = 60; //distance over which separate objects are recognized
 const int BORDER_ZONE = 10; //no storing of objects near the image borders (object may have left the frame)
+const int TOO_YOUNG = 10; //ignore objects younger than TOO_YOUNG frames / lifes
+const int MAX_LIFES = 900; //maximum frames (aka lifes) an object can accumulate (and can live withouth moving) (900 / 15 = 60 seconds)
 
 void ObjectHandler::matToVector(Mat in, vector<Object> &out) {
     for (int i = 0; i < in.rows; i++) {
@@ -48,13 +50,13 @@ ObjectHandler::ObjectHandler(int inWidth, int inHeight) {
     height = inHeight;
 }
 
-//add 1 to every objects age
+//to gradually eliminate non moving objects, remove one life from all objects
 void ObjectHandler::ageObjects() {
     for (auto object = objects.begin(); object != objects.end(); ++object) {
-        (*object).age++;
-        //limit max age
-        if ((*object).age > 100) {
-            (*object).age = 100;
+        (*object).lifes--;
+        //remove old non moving objects, might have been be some dust...
+        if ((*object).lifes < 0 ) {
+            objects.erase(object--);
         }
     }
 }
@@ -72,14 +74,21 @@ vector<Point2f> ObjectHandler::update(Mat clusterCenters) {
     //iterate through all objects
     for (auto object = objects.begin(); object != objects.end(); ++object) {
         //and check if any center is overlapping
+        bool overlapping = false;
         for (auto center = centers.begin(); center != centers.end(); ++center) {
             if (overlaps((*object), (*center))) {
-                //inherit age from overlapping object
-                if ((*object).age > (*center).age) {
-                    (*center).age = (*object).age;
+                overlapping = true;
+                //inherit lifes from overlapping object, if larger than own
+                if ((*object).lifes >= (*center).lifes - 1) {
+                    (*center).lifes = (*object).lifes + 2; //increase lifes by 2, as later 1 is reduced for general aging
+                    if ((*object).lifes > MAX_LIFES) {
+                        (*object).lifes = MAX_LIFES; //limit lifes, so non moving objects are removed after MAX_LIFES
+                    }
                 }
-                objects.erase(object--); //-- is necessary to set iterator back to a not erased instance
             }
+        }
+        if (overlapping) {
+            objects.erase(object--); //-- is necessary to set iterator back to a not erased instance
         }
     }
     
@@ -100,7 +109,7 @@ vector<Point2f> ObjectHandler::getObjects() {
     
     for (auto object = objects.begin(); object != objects.end(); ++object) {
         //only return older objects
-        if ((*object).age > 5) {
+        if ((*object).lifes > TOO_YOUNG) {
             objectPoints.push_back((*object).point);
         }
         

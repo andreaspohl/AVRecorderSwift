@@ -30,7 +30,7 @@ private:
     
     struct Object {
         Point2f point = {0, 0}; // center of the object
-        int age = 0; // age (in number of frames) of the object
+        int lifes = 1; // lifes (in number of frames) of the object, grows, when object is moving, shrinks, when object is static
     };
     
     vector<Object> objects;
