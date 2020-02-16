@@ -21,7 +21,7 @@ public:
         NONE
     };
     Filter(int x, BorderType border);
-    int update(int x);
+    int update(double x);
     
 private:
     double x;

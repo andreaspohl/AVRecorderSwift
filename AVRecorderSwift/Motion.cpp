@@ -79,23 +79,8 @@ string intToString(int number) {
     return ss.str();
 }
 
-//bool to print timestamps
-const static bool silent = 1;
-
 //for testing
 static bool test = false;
-
-inline void timestamp(string s) {
-    
-    // prints a timestamp to the console
-    
-    if (!silent) {
-        static int64 t0 = getTickCount();
-        int64 t1 = getTickCount();
-        cout << setw(10) << s << ":" << setfill(' ') << setw(10) << (int)((t1 - t0) / getTickFrequency() * 1000) << " ms" << endl;
-        t0 = t1;
-    }
-}
 
 void Motion::setTest() {
     test = true;
@@ -115,16 +100,27 @@ std::string ReplaceString(std::string subject, const std::string& search,
 //calculate zoom window from bounding rectangle
 void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     
-    static Filter leftBorderFilter(0, Filter::BorderType::NONE);
-    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
-    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::NONE);
+    static Filter leftBorderFilter(0, Filter::BorderType::LEFT);
+    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::RIGHT);
+    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::RIGHT);
     static Filter zoomXPositionFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
     
-    //unfiltered borders, yet
-    int leftBorder = leftBorderFilter.update(boundingRectangle.x - BEZEL);
-    int rightBorder = rightBorderFilter.update(boundingRectangle.x + boundingRectangle.width + BEZEL);
+    //add bezel to bounding rectangle borders
+    double leftBorderTarget = boundingRectangle.x - BEZEL;
+    double rightBorderTarget = boundingRectangle.x + boundingRectangle.width + BEZEL;
+    
+    //limit lower target size to MAX_ZOOMED_WINDOW
+    if (rightBorderTarget - leftBorderTarget > MAX_ZOOMED_WINDOW.width) {
+        double correction = (MAX_ZOOMED_WINDOW.width - rightBorderTarget + leftBorderTarget) / 2;
+        leftBorderTarget = leftBorderTarget - correction;
+        rightBorderTarget = rightBorderTarget + correction;
+    }
+    
+    //filter borders
+    int leftBorder = leftBorderFilter.update(leftBorderTarget);
+    int rightBorder = rightBorderFilter.update(rightBorderTarget);
     int bottomBorder = bottomBorderFilter.update(boundingRectangle.y + boundingRectangle.height + BEZEL / 2);
-
+    
     //calculate zoom factor, only from width yet
     double tempWidth = (rightBorder - leftBorder) / reduceFactor;
     zoomFactor =  (IN_VIDEO_SIZE.width - tempWidth) / (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) * 100;
@@ -143,8 +139,9 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
         zoomFactor = 0.0;
     }
     
+    zoomXPosition = (int) ((leftBorder + rightBorder) / 2);
     zoomXPosition = zoomXPositionFilter.update(zoomXPosition);
-    
+
 }
 
 void reduce(Mat in, Mat &out) {
@@ -233,7 +230,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
         objectBoundingRectangle.height = redFrame.rows;
     }
     
-    //new simple calculation of camera center
+    //calculation of (yet unfiltered) camera center
     int x = objectBoundingRectangle.x + (int) objectBoundingRectangle.width / 2;
     int y = objectBoundingRectangle.y + (int) objectBoundingRectangle.height / 2;
     
@@ -298,7 +295,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     
     Mat cutImage;
     int xx, yy;
-    xx = ( (int) p.x / reduceFactor ) - ( (int) zoomedWindow.width / 2 );
+    xx = (int)( p.x / reduceFactor - zoomedWindow.width / 2 );
     yy = cameraVerticalPosition - ( (int) zoomedWindow.height / 2 ); // fix vertical camera swing
     
     //limit against border of image
@@ -314,9 +311,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //cout << "cutImage " << xx << " " << yy << " " << zoomedWindow.width << " " << zoomedWindow.height << "\n";
     
     cutImage = cameraFeed(Rect(xx, yy, zoomedWindow.width, zoomedWindow.height));
-    timestamp("rect");
     resize(cutImage, zoomedImage, OUT_VIDEO_SIZE, 0, 0, INTER_CUBIC);
-    timestamp("resize");
     
     previousCenter = p;
     
@@ -342,7 +337,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
         Point br(xx + zoomedWindow.width, yy + zoomedWindow.height);
         tl = tl * reduceFactor;
         br = br * reduceFactor;
-        rectangle(redFrame, tl, br, Scalar(255, 0, 0), 3);
+        rectangle(redFrame, tl, br, Scalar(255, 200, 0), 3);
         
         imshow("Movement", redFrame);
     }
