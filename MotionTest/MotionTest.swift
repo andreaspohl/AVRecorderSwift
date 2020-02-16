@@ -35,7 +35,7 @@ class MotionTest: XCTestCase {
             12: "fast new.mov"
         ]
         
-        let movieToTest = 1
+        let movieToTest = 2
         let movieName = testMovies[movieToTest]!
 
         let basePath = "/Users/andreas/Movies/AVRecorderTest/"

@@ -101,9 +101,10 @@ std::string ReplaceString(std::string subject, const std::string& search,
 void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     
     static Filter leftBorderFilter(0, Filter::BorderType::LEFT);
-    static Filter rightBorderFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::RIGHT);
-    static Filter bottomBorderFilter((int) IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::RIGHT);
-    static Filter zoomXPositionFilter((int) IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
+    static Filter rightBorderFilter(IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::RIGHT);
+    static Filter bottomBorderFilter(IN_VIDEO_SIZE.height * reduceFactor, Filter::BorderType::BOTTOM);
+    static Filter zoomXPositionFilter(IN_VIDEO_SIZE.width * reduceFactor, Filter::BorderType::NONE);
+    static Filter zoomFactorFilter(0, Filter::BorderType::NONE);
     
     //add bezel to bounding rectangle borders
     double leftBorderTarget = boundingRectangle.x - BEZEL;
@@ -132,6 +133,8 @@ void calcZoom(Rect boundingRectangle, int &zoomXPosition, double &zoomFactor) {
     if (vertZoomFactor < zoomFactor) {
         zoomFactor = vertZoomFactor;
     }
+    
+    zoomFactor = zoomFactorFilter.update(zoomFactor);
     
     if (zoomFactor > 100.0) {
         zoomFactor = 100.0;
@@ -276,7 +279,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     int cameraVerticalPosition = (int) IN_VIDEO_SIZE.height / 2;
     Size zoomedWindow = MAX_ZOOMED_WINDOW;
     double zoomFactor = 0.0;  // zoomFaktor will be between 0 (no zoom) and 100 (max zoom)
-    
+        
     calcZoom(objectBoundingRectangle, p.x, zoomFactor);
 
     //store for later usage
@@ -285,7 +288,7 @@ void trackObjects(Mat thresholdImage, Mat &cameraFeed, Mat &zoomedImage, Mat red
     //make zoomed Image
     zoomedWindow.width = (int)(IN_VIDEO_SIZE.width - zoomFactor * (IN_VIDEO_SIZE.width - MAX_ZOOMED_WINDOW.width) / 100);
     zoomedWindow.height = (int)(IN_VIDEO_SIZE.height - zoomFactor * (IN_VIDEO_SIZE.height - MAX_ZOOMED_WINDOW.height) / 100);
-    
+
     if (zoomedWindow.width > IN_VIDEO_SIZE.width) {
         zoomedWindow.width = IN_VIDEO_SIZE.width;
     }
