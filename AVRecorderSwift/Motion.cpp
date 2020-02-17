@@ -111,10 +111,27 @@ void calcZoom(Rect boundingRectangle, double &zoomXPosition, double &zoomFactor)
     double rightBorderTarget = boundingRectangle.x + boundingRectangle.width + BEZEL;
     
     //limit lower target size to MAX_ZOOMED_WINDOW
-    if (rightBorderTarget - leftBorderTarget < MAX_ZOOMED_WINDOW.width * reduceFactor) {
-        double correction = (MAX_ZOOMED_WINDOW.width * reduceFactor - rightBorderTarget + leftBorderTarget) / 2;
-        leftBorderTarget = leftBorderTarget - correction;
-        rightBorderTarget = rightBorderTarget + correction;
+    const static double max_zoomed_window_width = MAX_ZOOMED_WINDOW.width * reduceFactor;
+    if (rightBorderTarget - leftBorderTarget < max_zoomed_window_width ) {
+        
+        //calculate the borders for a max zoom to the actual camera center
+        double actualCenter = zoomXPositionFilter.getValue();
+        double leftBorderLimit = actualCenter - max_zoomed_window_width / 2;
+        double rightBorderLimit = actualCenter + max_zoomed_window_width / 2;
+        
+        //block 'intruding' borders into above borders - we can't zoom more anyway, so let the target move in the max zoom window
+        if (leftBorderTarget > leftBorderLimit) {
+            leftBorderTarget = leftBorderLimit;
+        }
+        if (rightBorderTarget < rightBorderLimit) {
+            rightBorderTarget = rightBorderLimit;
+        }
+        //if zoom window is still too narrow, correct evenly on both sides
+        if (rightBorderTarget - leftBorderTarget < max_zoomed_window_width) {
+            double correction = (max_zoomed_window_width - rightBorderTarget + leftBorderTarget) / 2;
+            leftBorderTarget = leftBorderTarget - correction;
+            rightBorderTarget = rightBorderTarget + correction;
+        }
     }
     
     //filter borders

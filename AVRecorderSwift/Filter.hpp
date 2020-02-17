@@ -22,6 +22,7 @@ public:
     };
     Filter(double x, BorderType border);
     double update(double x);
+    double getValue();
     
 private:
     double x;

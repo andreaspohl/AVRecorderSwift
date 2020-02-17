@@ -27,6 +27,10 @@ Filter::Filter(double in, enum BorderType border) {
     borderType = border;
 }
 
+double Filter::getValue() {
+    return x;
+}
+
 double Filter::update(double in) {
     
     //hysteresis, only for borders
