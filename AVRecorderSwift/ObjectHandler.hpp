@@ -27,11 +27,22 @@ public:
     vector<Point2f> getObjects();
     
 private:
-    vector<Point2f> objects;
+    
+    struct Object {
+        Point2f point = {0, 0}; // center of the object
+        int lifes = 1; // lifes (in number of frames) of the object, grows, when object is moving, shrinks, when object is static
+    };
+    
+    vector<Object> objects;
+
     int width, height;
     
     void mergeObjects();
-    void addCentersToObjects(vector<Point2f> centers, vector<Point2f> &objects);
+    void addCentersToObjects(vector<Object> centers);
+    void matToVector(Mat in, vector<Object> &out);
+    bool overlaps(Object p1, Object centers);
+    void ageObjects();
+
 
 };
 

@@ -20,8 +20,9 @@ public:
         BOTTOM,
         NONE
     };
-    Filter(int x, BorderType border);
-    int update(int x);
+    Filter(double x, BorderType border);
+    double update(double x);
+    double getValue();
     
 private:
     double x;
